@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DreamStage — Review Your Event Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3f0ec;
+    --text: #2a2118;
+    --text-muted: #7a6e62;
+    --border: rgba(42,33,24,0.1);
+    --rose: #f9c5d1; --rose-d: #f0a0b4;
+    --mint: #b8f0e0; --mint-d: #8ee4cc;
+    --lavender: #d4c5f9; --lavender-d: #b9a3f0;
+    --peach: #ffd6b3; --peach-d: #ffc090;
+    --sky: #b3deff; --sky-d: #8ecbff;
+    --lemon: #fef3a0; --lemon-d: #fde97a;
+    --accent: #c9a6e4;
+    --accent-glow: rgba(201,166,228,0.3);
+    --shadow: 0 8px 32px rgba(42,33,24,0.08);
+    --shadow-lg: 0 20px 60px rgba(42,33,24,0.12);
+  }
+  [data-theme="dark"] {
+    --bg: #16121e; --surface: #211c2e; --surface2: #2a2438;
+    --text: #f0eaff; --text-muted: #9b92b8;
+    --border: rgba(240,234,255,0.1);
+    --rose: #7a3a52; --rose-d: #a0506e;
+    --mint: #2a6654; --mint-d: #3a8a72;
+    --lavender: #4a3878; --lavender-d: #6550a0;
+    --peach: #7a4e28; --peach-d: #a06835;
+    --sky: #2a4e7a; --sky-d: #3a6aa0;
+    --lemon: #5a5020; --lemon-d: #7a6e2a;
+    --accent: #9b72cc; --accent-glow: rgba(155,114,204,0.25);
+    --shadow: 0 8px 32px rgba(0,0,0,0.3);
+    --shadow-lg: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.4s, color 0.4s;
+    overflow-x: hidden;
+  }
+
+  /* background orbs */
+  .bg-orbs { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.22; animation: floatOrb 12s ease-in-out infinite; }
+  [data-theme="dark"] .orb { opacity: 0.1; }
+  .orb-1 { width: 450px; height: 450px; background: var(--rose-d); top: -120px; left: -80px; animation-delay: 0s; }
+  .orb-2 { width: 320px; height: 320px; background: var(--lavender-d); bottom: 5%; right: -60px; animation-delay: 4s; }
+  .orb-3 { width: 260px; height: 260px; background: var(--mint-d); top: 50%; left: 40%; animation-delay: 8s; }
+  @keyframes floatOrb { 0%,100%{transform:translate(0,0)} 50%{transform:translate(15px,-25px)} }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    padding: 0 2.5rem;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.4s;
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem; font-weight: 700;
+    letter-spacing: -0.02em; color: var(--text);
+    text-decoration: none; display: flex; align-items: center; gap: 0.35rem;
+  }
+  .logo-icon { font-size: 1rem; }
+  .logo span {
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d), var(--sky-d));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .nav-divider { width: 1px; height: 22px; background: var(--border); }
+
+  .nav-event-info {}
+  .nav-event-name { font-size: 0.9rem; font-weight: 600; }
+  .nav-event-meta { font-size: 0.72rem; color: var(--text-muted); }
+
+  .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+
+  .client-badge {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.3rem 0.9rem; border-radius: 999px;
+    background: var(--lavender); border: 1px solid var(--border);
+    font-size: 0.72rem; font-weight: 600; color: var(--text);
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lavender-d); }
+
+  .theme-toggle {
+    width: 44px; height: 24px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 999px; cursor: pointer; position: relative; transition: background 0.3s;
+  }
+  .theme-toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  [data-theme="dark"] .theme-toggle::after {
+    transform: translateX(20px);
+    background: linear-gradient(135deg, var(--lavender-d), var(--sky-d));
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 0;
+    min-height: calc(100vh - 64px);
+  }
+
+  /* ── LEFT: 3D VIEWER ── */
+  .viewer-panel {
+    padding: 1.8rem 1.5rem 1.8rem 2rem;
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+
+  .viewer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .viewer-title-block {}
+  .viewer-eyebrow {
+    font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 0.3rem;
+  }
+  .viewer-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1.1;
+  }
+  .viewer-title em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .viewer-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; font-weight: 300; }
+
+  .viewer-controls { display: flex; gap: 0.5rem; }
+  .ctrl-btn {
+    padding: 0.4rem 0.9rem; border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+  .ctrl-btn:hover { border-color: var(--text); color: var(--text); background: var(--surface2); }
+  .ctrl-btn.active { background: var(--lavender); border-color: var(--lavender); color: var(--text); font-weight: 600; }
+
+  /* 3D canvas area */
+  .canvas-wrap {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    background: var(--surface2);
+    flex: 1;
+    min-height: 460px;
+    animation: fadeUp 0.4s 0.06s ease both;
+  }
+
+  .canvas-inner {
+    position: absolute; inset: 0;
+    /* Simulated 3D canvas - in real app this is the R3F Canvas */
+    background: linear-gradient(160deg, #e8e4dc 0%, #d8d2c8 40%, #c8c0b4 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* simulated primitives */
+  .sim-scene { position: absolute; inset: 0; }
+  .sim-floor {
+    position: absolute;
+    bottom: 15%; left: 10%; right: 10%;
+    height: 55%;
+    background: linear-gradient(160deg, #ddd8ce 0%, #ccc6bc 100%);
+    border: 1px solid rgba(0,0,0,0.06);
+    transform: perspective(600px) rotateX(35deg);
+    border-radius: 4px;
+  }
+  .sim-wall-back {
+    position: absolute;
+    top: 5%; left: 10%; right: 10%;
+    height: 40%;
+    background: linear-gradient(180deg, #e2ddd6 0%, #d5d0c8 100%);
+    border: 1px solid rgba(0,0,0,0.05);
+    transform: perspective(600px) rotateX(-10deg);
+    border-radius: 4px;
+  }
+
+  /* primitive shapes */
+  .prim {
+    position: absolute;
+    border-radius: 4px;
+    animation: primFloat 4s ease-in-out infinite;
+  }
+  @keyframes primFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+
+  .prim-chair-1 { width: 32px; height: 32px; background: #f0a0b4; bottom: 34%; left: 26%; animation-delay: 0s; border-radius: 5px; opacity: 0.9; }
+  .prim-chair-2 { width: 32px; height: 32px; background: #f0a0b4; bottom: 34%; left: 33%; animation-delay: 0.3s; border-radius: 5px; opacity: 0.9; }
+  .prim-chair-3 { width: 32px; height: 32px; background: #f0a0b4; bottom: 24%; left: 28%; animation-delay: 0.6s; border-radius: 5px; opacity: 0.9; }
+  .prim-table-1 { width: 64px; height: 20px; background: #E8735A; bottom: 38%; left: 42%; animation-delay: 0.2s; border-radius: 4px; opacity: 0.85; }
+  .prim-table-2 { width: 55px; height: 18px; background: #E8735A; bottom: 28%; left: 55%; animation-delay: 0.5s; border-radius: 4px; opacity: 0.85; }
+  .prim-staging { width: 130px; height: 18px; background: #b9a3f0; bottom: 52%; left: 30%; animation-delay: 0.1s; border-radius: 5px; opacity: 0.8; }
+  .prim-chandelier { width: 22px; height: 22px; background: #F9E45B; bottom: 62%; left: 47%; border-radius: 50%; animation-delay: 0.8s; box-shadow: 0 0 12px rgba(249,228,91,0.6); }
+
+  /* canvas overlay label */
+  .canvas-label {
+    position: absolute; top: 1rem; left: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.7rem; font-weight: 600;
+    display: flex; align-items: center; gap: 0.4rem;
+    color: var(--text-muted);
+    box-shadow: var(--shadow);
+  }
+  .label-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint-d); }
+
+  /* canvas controls bottom */
+  .canvas-controls {
+    position: absolute; bottom: 1rem; right: 1rem;
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .canvas-ctrl {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; cursor: pointer;
+    transition: all 0.2s; color: var(--text-muted);
+  }
+  .canvas-ctrl:hover { background: var(--lavender); color: var(--text); }
+
+  /* legend */
+  .legend-strip {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    animation: fadeUp 0.4s 0.1s ease both;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.72rem; color: var(--text-muted);
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    border-left: 1px solid var(--border);
+    background: var(--surface);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .right-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    animation: fadeUp 0.4s ease both;
+  }
+  .right-section:last-child { border-bottom: none; }
+
+  .rs-label {
+    font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 1rem;
+  }
+
+  /* budget section */
+  .budget-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .budget-ceiling { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+  .budget-progress-track {
+    height: 10px; border-radius: 999px;
+    background: var(--surface2); overflow: hidden; margin-bottom: 0.5rem;
+  }
+  .budget-progress-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--lavender), var(--lavender-d));
+    animation: growFill 1.2s ease both;
+    width: 82.5%;
+  }
+  @keyframes growFill { from { width: 0; } }
+
+  .budget-pct-row {
+    display: flex; justify-content: space-between;
+    font-size: 0.72rem; color: var(--text-muted);
+  }
+
+  .budget-breakdown { margin-top: 1.2rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .bb-row { display: flex; align-items: center; gap: 0.6rem; }
+  .bb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .bb-name { font-size: 0.78rem; flex: 1; }
+  .bb-val { font-size: 0.78rem; font-weight: 600; font-family: 'Playfair Display', serif; }
+
+  /* assets placed */
+  .assets-grid { display: flex; flex-direction: column; gap: 0.5rem; }
+  .asset-row {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+  .asset-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; flex-shrink: 0;
+  }
+  .asset-name { font-size: 0.8rem; font-weight: 500; flex: 1; }
+  .asset-qty { font-size: 0.72rem; color: var(--text-muted); }
+  .asset-cost { font-size: 0.78rem; font-weight: 600; font-family: 'Playfair Display', serif; }
+
+  /* comments section */
+  .comments-list { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem; }
+  .comment-bubble {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px; border-top-left-radius: 4px;
+    padding: 0.75rem 0.9rem;
+  }
+  .comment-meta { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+  .comment-avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+  .comment-author { font-size: 0.72rem; font-weight: 600; }
+  .comment-time { font-size: 0.65rem; color: var(--text-muted); margin-left: auto; }
+  .comment-text { font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); }
+
+  .comment-form { display: flex; flex-direction: column; gap: 0.6rem; }
+  .cf-input {
+    width: 100%; padding: 0.65rem 0.9rem;
+    border-radius: 10px; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .cf-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: var(--surface); }
+  .cf-textarea {
+    width: 100%; padding: 0.65rem 0.9rem;
+    border-radius: 10px; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical; min-height: 80px;
+  }
+  .cf-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: var(--surface); }
+  .cf-textarea::placeholder, .cf-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+  .btn-send {
+    padding: 0.65rem 1.2rem; border-radius: 999px;
+    border: 1.5px solid var(--border); background: var(--surface2);
+    color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; align-self: flex-start;
+  }
+  .btn-send:hover { background: var(--lavender); border-color: var(--lavender); transform: translateY(-1px); }
+
+  /* approve section */
+  .approve-section { background: var(--surface); }
+
+  .approve-card {
+    background: linear-gradient(135deg, var(--mint) 0%, var(--sky) 100%);
+    border-radius: 16px;
+    padding: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  [data-theme="dark"] .approve-card { opacity: 0.85; }
+
+  .approve-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem;
+  }
+  .approve-card-sub { font-size: 0.78rem; opacity: 0.75; line-height: 1.5; }
+
+  .approve-form { display: flex; flex-direction: column; gap: 0.65rem; }
+
+  .approve-name-input {
+    width: 100%; padding: 0.7rem 0.9rem;
+    border-radius: 10px; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    outline: none; transition: all 0.2s;
+  }
+  .approve-name-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: var(--surface); }
+
+  .btn-approve {
+    width: 100%; padding: 0.85rem;
+    border-radius: 999px; border: none;
+    background: var(--text); color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .btn-approve:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); opacity: 0.88; }
+
+  .approve-disclaimer {
+    font-size: 0.68rem; color: var(--text-muted);
+    text-align: center; line-height: 1.5;
+    display: flex; align-items: center; gap: 0.3rem; justify-content: center;
+  }
+
+  /* approved state */
+  .approved-state {
+    background: var(--mint);
+    border-radius: 14px; padding: 1.2rem;
+    text-align: center; display: none;
+  }
+  .approved-state.visible { display: block; }
+  .approved-tick { font-size: 2rem; margin-bottom: 0.5rem; }
+  .approved-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .approved-sub { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .right-panel { border-left: none; border-top: 1px solid var(--border); }
+    .viewer-panel { padding: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="#" class="logo"><span class="logo-icon">✦</span>Dream<span>Stage</span></a>
+    <div class="nav-divider"></div>
+    <div class="nav-event-info">
+      <div class="nav-event-name">Ambereen's Birthday</div>
+      <div class="nav-event-meta">3 March 2026 · Client review link</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="client-badge"><div class="badge-dot"></div>Client View</div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT: VIEWER -->
+  <div class="viewer-panel">
+
+    <div class="viewer-header">
+      <div class="viewer-title-block">
+        <div class="viewer-eyebrow">3D Venue Layout</div>
+        <h1 class="viewer-title"><em>Ambereen's</em> Birthday</h1>
+        <p class="viewer-meta">🎂 Birthday · 3 March 2026 · Shared by your event planner</p>
+      </div>
+      <div class="viewer-controls">
+        <button class="ctrl-btn active">🔄 Orbit</button>
+        <button class="ctrl-btn">🚶 Walkthrough</button>
+        <button class="ctrl-btn">⬆ Top View</button>
+      </div>
+    </div>
+
+    <!-- 3D Canvas -->
+    <div class="canvas-wrap">
+      <div class="canvas-inner">
+        <div class="sim-scene">
+          <div class="sim-wall-back"></div>
+          <div class="sim-floor"></div>
+          <!-- Primitives -->
+          <div class="prim prim-staging"></div>
+          <div class="prim prim-table-1"></div>
+          <div class="prim prim-table-2"></div>
+          <div class="prim prim-chair-1"></div>
+          <div class="prim prim-chair-2"></div>
+          <div class="prim prim-chair-3"></div>
+          <div class="prim prim-chandelier"></div>
+        </div>
+      </div>
+
+      <div class="canvas-label">
+        <div class="label-dot"></div>
+        Live 3D Preview · Drag to orbit
+      </div>
+
+      <div class="canvas-controls">
+        <div class="canvas-ctrl" title="Zoom in">＋</div>
+        <div class="canvas-ctrl" title="Zoom out">－</div>
+        <div class="canvas-ctrl" title="Reset view">⟳</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-strip">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#f0a0b4"></div> Seating
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#E8735A"></div> Tables
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#b9a3f0"></div> Staging
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#F9E45B;border:1px solid rgba(0,0,0,0.1)"></div> Lighting
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#4DB8A4"></div> Décor
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#87CEEB"></div> Backdrops
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Budget summary -->
+    <div class="right-section" style="animation-delay:0.08s">
+      <div class="rs-label">Budget Summary</div>
+
+      <div class="budget-amount">Rs. 16,500</div>
+      <div class="budget-ceiling">of Rs. 20,000 ceiling · 82.5% used</div>
+
+      <div class="budget-progress-track">
+        <div class="budget-progress-fill"></div>
+      </div>
+      <div class="budget-pct-row">
+        <span>Rs. 16,500 spent</span>
+        <span>Rs. 3,500 remaining</span>
+      </div>
+
+      <div class="budget-breakdown">
+        <div class="bb-row">
+          <div class="bb-dot" style="background:#f0a0b4"></div>
+          <div class="bb-name">Seating (chairs)</div>
+          <div class="bb-val">Rs. 4,500</div>
+        </div>
+        <div class="bb-row">
+          <div class="bb-dot" style="background:#E8735A"></div>
+          <div class="bb-name">Tables</div>
+          <div class="bb-val">Rs. 6,000</div>
+        </div>
+        <div class="bb-row">
+          <div class="bb-dot" style="background:#b9a3f0"></div>
+          <div class="bb-name">Staging</div>
+          <div class="bb-val">Rs. 4,000</div>
+        </div>
+        <div class="bb-row">
+          <div class="bb-dot" style="background:#F9E45B"></div>
+          <div class="bb-name">Lighting</div>
+          <div class="bb-val">Rs. 2,000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assets placed -->
+    <div class="right-section" style="animation-delay:0.12s">
+      <div class="rs-label">Assets in Layout</div>
+      <div class="assets-grid">
+        <div class="asset-row">
+          <div class="asset-icon" style="background:#f9c5d1">🪑</div>
+          <div class="asset-name">Chairs</div>
+          <div class="asset-qty">× 3</div>
+          <div class="asset-cost">Rs. 4,500</div>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:#ffd6b3">🪵</div>
+          <div class="asset-name">Round Tables</div>
+          <div class="asset-qty">× 2</div>
+          <div class="asset-cost">Rs. 6,000</div>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:#d4c5f9">🎪</div>
+          <div class="asset-name">Main Stage</div>
+          <div class="asset-qty">× 1</div>
+          <div class="asset-cost">Rs. 4,000</div>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:#fef3a0">💡</div>
+          <div class="asset-name">Chandelier</div>
+          <div class="asset-qty">× 1</div>
+          <div class="asset-cost">Rs. 2,000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comments -->
+    <div class="right-section" style="animation-delay:0.16s">
+      <div class="rs-label">Comments</div>
+
+      <div class="comments-list">
+        <div class="comment-bubble">
+          <div class="comment-meta">
+            <div class="comment-avatar" style="background:linear-gradient(135deg,var(--lavender-d),var(--sky-d))">EP</div>
+            <div class="comment-author">Event Planner</div>
+            <div class="comment-time">Yesterday</div>
+          </div>
+          <div class="comment-text">Hi Ambereen! Please take a look at the layout and let me know if you'd like to move any furniture around or add more items. 🎉</div>
+        </div>
+      </div>
+
+      <div class="comment-form">
+        <input class="cf-input" type="text" placeholder="Your name">
+        <textarea class="cf-textarea" placeholder="Add a comment or feedback..."></textarea>
+        <button class="btn-send">Send Comment →</button>
+      </div>
+    </div>
+
+    <!-- Approve design -->
+    <div class="right-section approve-section" style="animation-delay:0.2s">
+      <div class="rs-label">Approve Design</div>
+
+      <div class="approve-card">
+        <div class="approve-card-title">✦ Ready to sign off?</div>
+        <div class="approve-card-sub">Approving locks this design and creates a timestamped record your planner can act on.</div>
+      </div>
+
+      <div class="approve-form" id="approveForm">
+        <input class="approve-name-input" type="text" placeholder="Your full name" id="approveName">
+        <button class="btn-approve" onclick="handleApprove()">
+          <span>✓</span> Approve This Design
+        </button>
+        <div class="approve-disclaimer">
+          🔐 This creates an immutable approval record
+        </div>
+      </div>
+
+      <div class="approved-state" id="approvedState">
+        <div class="approved-tick">✅</div>
+        <div class="approved-title">Design Approved!</div>
+        <div class="approved-sub">Your planner has been notified. This layout is now locked.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Theme
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    document.documentElement.dataset.theme =
+      document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+
+  // View controls
+  document.querySelectorAll('.ctrl-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Approve
+  function handleApprove() {
+    const name = document.getElementById('approveName').value.trim();
+    if (!name) {
+      document.getElementById('approveName').focus();
+      document.getElementById('approveName').style.borderColor = 'var(--rose-d)';
+      return;
+    }
+    document.getElementById('approveForm').style.display = 'none';
+    document.getElementById('approvedState').classList.add('visible');
+  }
+</script>
+</body>
+</html>

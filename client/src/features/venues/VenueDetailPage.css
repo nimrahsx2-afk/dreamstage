@@ -1,0 +1,365 @@
+/* Venue Detail Page */
+
+.venue-detail-page {
+  min-height: 100vh;
+  padding-top: 72px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.venue-detail-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1.2rem 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+
+.venue-detail-nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.venue-detail-nav-links a {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.venue-detail-nav-links a:hover,
+.venue-detail-nav-links a.active {
+  color: var(--text);
+}
+
+.venue-detail-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.venue-detail-theme-toggle {
+  width: 48px;
+  height: 26px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+}
+
+.venue-detail-theme-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+  transition: transform 0.3s;
+}
+
+[data-theme='dark'] .venue-detail-theme-toggle::after {
+  transform: translateX(22px);
+}
+
+.venue-detail-btn-nav {
+  padding: 0.55rem 1.4rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--text);
+  color: var(--bg);
+  text-decoration: none;
+}
+
+.venue-detail-loading,
+.venue-detail-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+
+.venue-detail-spinner {
+  animation: venue-detail-spin 1s linear infinite;
+}
+
+@keyframes venue-detail-spin {
+  to { transform: rotate(360deg); }
+}
+
+.venue-detail-back {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+/* Hero carousel */
+.venue-detail-main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+.venue-detail-hero {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  background: var(--surface2);
+}
+
+.venue-detail-carousel {
+  position: absolute;
+  inset: 0;
+}
+
+.venue-detail-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.venue-detail-slide.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.venue-detail-carousel-prev,
+.venue-detail-carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.venue-detail-carousel-prev:hover,
+.venue-detail-carousel-next:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+.venue-detail-carousel-prev {
+  left: 1rem;
+}
+
+.venue-detail-carousel-next {
+  right: 1rem;
+}
+
+.venue-detail-carousel-dots {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.venue-detail-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.venue-detail-dot.active {
+  background: white;
+}
+
+/* Content */
+.venue-detail-content {
+  padding: 0 1rem;
+}
+
+.venue-detail-back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.venue-detail-back-link:hover {
+  color: var(--accent);
+}
+
+.venue-detail-header {
+  margin-bottom: 2rem;
+}
+
+.venue-detail-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.venue-detail-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.venue-detail-category {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--lavender);
+  color: var(--text);
+}
+
+.venue-detail-capacity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.venue-detail-price {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.venue-detail-section {
+  margin-bottom: 2rem;
+}
+
+.venue-detail-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.venue-detail-desc {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.venue-detail-amenities {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.venue-detail-amenities li {
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.venue-detail-actions {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.venue-detail-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+  color: white;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.venue-detail-edit-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.venue-detail-edit-hint {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* YouTube embed directly under hero carousel */
+.venue-detail-video-band {
+  padding: 2rem 1.5rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.venue-detail-video-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.venue-detail-video-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 1rem;
+}
+
+.venue-detail-video-wrap {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #000;
+}
+
+.venue-detail-video-wrap iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}

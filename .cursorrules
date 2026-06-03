@@ -1,0 +1,191 @@
+# DreamStage — FYP Project Specification
+# 3D Event Planning & Venue Visualization Platform
+# Version 3.0 | 2025
+
+---
+
+## PROJECT OVERVIEW
+
+DreamStage is a web-based 3D event planning and venue visualization platform. It allows event planners and their clients to collaboratively design, customize, and manage events inside pre-built, professionally modelled 3D venue environments — all within a standard web browser, with no specialist software required.
+
+It replaces fragmented tools (spreadsheets, email threads, floor-plan tools, calendar apps) with a single integrated platform.
+
+---
+
+## TECHNOLOGY STACK
+
+- **Frontend:** React.js (with Three.js / React Three Fiber for 3D editor)
+- **Backend:** Node.js + Express.js (RESTful API)
+- **Database:** PostgreSQL
+- **Auth:** JWT (stateless, role-based)
+- **Storage:** Private cloud storage bucket (signed URLs for vendor PDFs)
+- **3D Engine:** Three.js (scene serialized to JSON for persistence)
+
+---
+
+## FIVE CORE MODULES
+
+### Module A — 3D Venue Editor
+- Drag-and-drop asset placement inside pre-built venue templates
+- Real-time position, rotation, scale controls
+- Auto-save scene every 60 seconds
+- Scene serialized as JSON to DB (SceneLayout table)
+- Locked after client approval; planner can unlock with confirmation
+
+### Module B — Budget & Cost Estimation Engine
+- Budget recalculates within 500ms of any layout change
+- Each placed asset triggers a cost update
+- Budget ceiling set per event
+- Vendor payment tracking (deposit / final)
+- Planner can attach vendor quotes (PDF, max 10MB)
+
+### Module C — Client Collaboration & Approval Workflow
+- Planner shares read-only project link (UUID v4 token, optional password)
+- Client views 3D layout (orbit + walkthrough modes), budget summary, leaves timestamped comments
+- Client submits formal approval → triggers layout lock
+- Approval stored as immutable audit record (cannot be updated or deleted)
+- Project lifecycle state machine: Draft → Approved → Locked
+
+### Module D — Venue Inventory Management
+- Venue templates managed by Admin
+- Booking conflict check when planner selects venue + date
+- Prevents double-booking via DB transactions
+
+### Module E — Décor & Asset Inventory Management
+- Stock quantity tracked per asset
+- Real-time stock check (<300ms) when asset placed in editor
+- Warns planner before overcommitting stock
+- Stock reservations per event stored in StockReservation table
+
+### Module F — Multi-Event Project Dashboard (+ Checklist)
+- Planner manages multiple concurrent events
+- Checklist dynamically populated based on days until event
+- Milestones, notes, day-of timeline per event
+
+---
+
+## USER ROLES & PERMISSIONS
+
+### Planner
+- Create, manage, delete event projects
+- Design 3D layouts, manage budgets, log vendor payments
+- Share project link with clients
+- View/respond to client comments
+- Unlock layout post-approval (with confirmation)
+
+### Client (no registration required)
+- Access project via unique shared URL
+- View 3D layout (read-only, orbit + walkthrough)
+- View budget summary (planner may hide detailed breakdown)
+- Leave timestamped comments
+- Submit formal design approval
+
+### Admin
+- Manage venue template library (add/edit/toggle availability)
+- Manage asset/décor inventory (stock, pricing, 3D model refs)
+- View and moderate planner accounts
+- Monitor venue bookings, resolve conflicts
+- Configure system-wide default pricing
+
+---
+
+## DATABASE SCHEMA (Core Tables)
+
+```
+User            — id, name, email, password_hash, role, created_at
+Event           — id, planner_id, name, type, date, status, share_token, share_password_hash, budget_ceiling
+VenueTemplate   — id, name, category, capacity, thumbnail_url, is_active
+VenueBooking    — id, event_id, venue_template_id, date, status (provisional / confirmed)
+SceneLayout     — id, event_id, scene_json, version, locked, created_at, updated_at
+BudgetItem      — id, event_id, asset_id, quantity, unit_price_override, vendor_id
+Vendor          — id, event_id, name, company, email, phone, category
+VendorPayment   — id, vendor_id, amount, type (deposit / final), paid_at
+Asset           — id, name, category, default_unit_price, stock_quantity, model_ref, is_active
+StockReservation— id, event_id, asset_id, quantity_reserved
+ClientComment   — id, event_id, content, created_at, parent_comment_id
+Approval        — id, event_id, client_identifier, approved_at, scene_version_ref
+ChecklistItem   — id, event_id, title, due_date, is_complete, is_system_generated
+Milestone       — id, event_id, title, target_date, is_complete
+TimelineEntry   — id, event_id, time_slot, title, description, sort_order
+```
+
+---
+
+## KEY CROSS-MODULE DATA FLOWS
+
+- **3D Editor → Budget:** Every asset placement triggers live budget recalculation
+- **3D Editor → Décor Inventory:** Asset placement triggers real-time stock validation
+- **Venue Selection → Venue Inventory:** Date selection triggers conflict check
+- **Client Approval → Layout Lock:** Approval locks the 3D editor
+- **Checklist → Event Date:** Checklist priorities driven by days remaining to event
+
+---
+
+## NON-FUNCTIONAL REQUIREMENTS
+
+### Performance
+- 3D editor: min 30fps on mid-range laptop (Intel i5, integrated graphics) with up to 100 assets
+- Budget recalculation: < 500ms
+- Page load: < 3 seconds on ≥10 Mbps connection
+- Stock validation: < 300ms
+
+### Security
+- Passwords: bcrypt, min cost factor 12; never logged or stored plain-text
+- All API routes: JWT + role validation before processing
+- Shared links: UUID v4 tokens (no sequential IDs)
+- Vendor PDFs: MIME validation, 10MB cap, private bucket with signed URLs
+- Protection against SQL injection (parameterized queries) and XSS (output escaping)
+
+### Usability
+- 3D editor usable without prior 3D experience (new user places/moves/resizes asset within 5 minutes)
+- Client shared view: fully functional on mobile browsers, no app/plugin required
+- Human-readable validation messages throughout
+- Calendar and stock indicators update without page reload
+
+### Reliability & Data Integrity
+- Auto-save scene every 60 seconds
+- Venue and stock reservations use DB transactions (prevent race conditions)
+- Approval audit trail is immutable (no update/delete by any role)
+
+### Scalability
+- Stateless backend (JWT-based sessions) for horizontal scaling
+- DB schema supports thousands of concurrent projects with proper indexing on FKs and filtered columns
+
+---
+
+## EXPLICITLY OUT OF SCOPE
+
+- AI-generated 3D models or image-to-3D conversion
+- Custom 3D asset uploads by planners (admin-only asset library)
+- Payment gateway / financial transactions between users
+- Native mobile apps (iOS/Android) — web-only, mobile-responsive
+- Real-time collaborative 3D editing by multiple simultaneous users
+- Third-party calendar integrations (Google Calendar, Outlook, iCal)
+- SMS notifications (in-app and email only)
+- White-label / multi-tenant functionality
+- Physical vendor marketplace
+
+---
+
+## FUTURE WORK (Post-FYP)
+
+- AI Layout Suggestions (optimal furniture arrangements)
+- Custom Asset Upload by planners
+- Guest Management Module (RSVP + seating linked to 3D layout)
+- Augmented Reality Preview (mobile AR overlay on real venue)
+- Physical Vendor Marketplace
+- Collaborative Real-Time Editing with cursor presence
+- Native Mobile App (day-of timeline + client approvals)
+
+---
+
+## CODING CONVENTIONS & EXPECTATIONS
+
+- Follow RESTful API design — all routes must validate JWT and role before processing
+- Use parameterized queries at all times — no raw SQL string interpolation
+- All state machine transitions (Draft → Approved → Locked) enforced at API level, not just UI
+- Shared project URLs must use UUID v4 — never sequential IDs
+- Scene JSON must fully capture Three.js graph (object types, UUIDs, positions, rotations, scales, lighting) for faithful reconstruction
+- Use DB transactions for any venue booking or stock reservation operations
+- Approval records are write-once — never add update/delete endpoints for the Approval table
+- Frontend: use React with React Three Fiber for 3D, keep 3D scene state managed carefully to avoid stale reads on budget/stock sync

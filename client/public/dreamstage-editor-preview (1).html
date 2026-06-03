@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DreamStage — 3D Editor Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3f0ec;
+    --text: #2a2118;
+    --text-muted: #7a6e62;
+    --border: rgba(42,33,24,0.1);
+    --rose: #f9c5d1; --rose-d: #f0a0b4;
+    --mint: #b8f0e0; --mint-d: #8ee4cc;
+    --lavender: #d4c5f9; --lavender-d: #b9a3f0;
+    --peach: #ffd6b3; --peach-d: #ffc090;
+    --sky: #b3deff; --sky-d: #8ecbff;
+    --lemon: #fef3a0; --lemon-d: #fde97a;
+    --accent: #c9a6e4;
+    --accent-glow: rgba(201,166,228,0.3);
+    --shadow: 0 4px 16px rgba(42,33,24,0.08);
+    --shadow-lg: 0 12px 40px rgba(42,33,24,0.12);
+  }
+  [data-theme="dark"] {
+    --bg: #16121e; --surface: #211c2e; --surface2: #2a2438;
+    --text: #f0eaff; --text-muted: #9b92b8;
+    --border: rgba(240,234,255,0.1);
+    --rose: #7a3a52; --rose-d: #a0506e;
+    --mint: #2a6654; --mint-d: #3a8a72;
+    --lavender: #4a3878; --lavender-d: #6550a0;
+    --peach: #7a4e28; --peach-d: #a06835;
+    --sky: #2a4e7a; --sky-d: #3a6aa0;
+    --lemon: #5a5020; --lemon-d: #7a6e2a;
+    --accent: #9b72cc;
+    --accent-glow: rgba(155,114,204,0.25);
+    --shadow: 0 4px 16px rgba(0,0,0,0.3);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    transition: background 0.4s, color 0.4s;
+  }
+
+  /* ═══════════════════════════════
+     APP SHELL — full viewport grid
+  ═══════════════════════════════ */
+  .app {
+    display: grid;
+    grid-template-rows: 56px 48px 48px 1fr;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── ROW 1: TOPBAR ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.5rem;
+    z-index: 50;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 1.2rem; }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem; font-weight: 700;
+    letter-spacing: -0.02em; color: var(--text);
+    text-decoration: none; display: flex; align-items: center; gap: 0.3rem;
+  }
+  .logo span {
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d), var(--sky-d));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .topbar-divider { width: 1px; height: 20px; background: var(--border); }
+
+  .back-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; cursor: pointer; color: var(--text-muted);
+    transition: all 0.2s;
+  }
+  .back-btn:hover { background: var(--lavender); color: var(--text); }
+
+  .event-info {}
+  .event-name-top {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem; font-weight: 700; line-height: 1.1;
+  }
+  .event-meta-top { font-size: 0.68rem; color: var(--text-muted); }
+
+  .topbar-right { display: flex; align-items: center; gap: 0.6rem; }
+
+  .top-nav-link {
+    padding: 0.35rem 0.85rem; border-radius: 999px;
+    font-size: 0.78rem; font-weight: 500;
+    color: var(--text-muted); text-decoration: none;
+    transition: all 0.2s; cursor: pointer;
+    border: none; background: none; font-family: 'DM Sans', sans-serif;
+  }
+  .top-nav-link:hover { background: var(--surface2); color: var(--text); }
+  .top-nav-link.active { background: var(--lavender); color: var(--text); font-weight: 600; }
+
+  .theme-toggle {
+    width: 44px; height: 24px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 999px; cursor: pointer; position: relative;
+    transition: background 0.3s; flex-shrink: 0;
+  }
+  .theme-toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  [data-theme="dark"] .theme-toggle::after {
+    transform: translateX(20px);
+    background: linear-gradient(135deg, var(--lavender-d), var(--sky-d));
+  }
+
+  .saved-pill {
+    display: flex; align-items: center; gap: 0.35rem;
+    padding: 0.3rem 0.8rem; border-radius: 999px;
+    background: var(--mint); border: 1px solid var(--mint-d);
+    font-size: 0.72rem; font-weight: 600; color: #1a5e44;
+  }
+
+  /* ── ROW 2: TAB BAR ── */
+  .tab-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 1.5rem;
+    gap: 0.25rem;
+  }
+
+  .tab {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0 1rem; height: 48px;
+    font-size: 0.82rem; font-weight: 500;
+    color: var(--text-muted); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--text); font-weight: 600;
+    border-bottom-color: var(--lavender-d);
+  }
+  .tab-icon { font-size: 0.9rem; }
+
+  .tab-bar-right { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+
+  .venue-badge {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.25rem 0.75rem; border-radius: 999px;
+    background: var(--surface2); border: 1px solid var(--border);
+    font-size: 0.7rem; font-weight: 500; color: var(--text-muted);
+    cursor: pointer;
+  }
+  .venue-badge:hover { border-color: var(--accent); color: var(--text); }
+
+  /* ── ROW 3: TOOLBAR ── */
+  .toolbar {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 1rem;
+    gap: 0.3rem;
+  }
+
+  .tool-sep { width: 1px; height: 24px; background: var(--border); margin: 0 0.3rem; }
+
+  .tool-btn {
+    display: flex; align-items: center; gap: 0.35rem;
+    padding: 0.38rem 0.85rem; border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent; color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .tool-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
+  .tool-btn.active {
+    background: var(--lavender); color: var(--text);
+    border-color: var(--lavender-d); font-weight: 600;
+  }
+  .tool-btn.danger:hover { background: var(--rose); color: #8a2840; }
+  .tool-icon { font-size: 0.85rem; }
+
+  .toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 0.4rem; }
+
+  .light-toggle-btn {
+    display: flex; align-items: center; gap: 0.3rem;
+    padding: 0.38rem 0.75rem; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 500;
+    color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+  }
+  .light-toggle-btn:hover { background: var(--surface2); color: var(--text); }
+
+  /* ── ROW 4: MAIN BODY ── */
+  .body {
+    display: grid;
+    grid-template-columns: 220px 1fr 280px;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  /* ══════════════════
+     LEFT SIDEBAR
+  ══════════════════ */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-head {
+    padding: 0.9rem 1rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .sidebar-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem; font-weight: 700; margin-bottom: 0.6rem;
+  }
+
+  .search-wrap { position: relative; }
+  .search-icon { position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; opacity: 0.4; }
+  .search-input {
+    width: 100%; padding: 0.5rem 0.75rem 0.5rem 2rem;
+    border-radius: 999px; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+    outline: none; transition: all 0.2s;
+  }
+  .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); background: var(--surface); }
+  .search-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+  .sidebar-scroll { overflow-y: auto; flex: 1; }
+  .sidebar-scroll::-webkit-scrollbar { width: 3px; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+  .cat-header {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1rem 0.35rem;
+    cursor: pointer; user-select: none;
+  }
+  .cat-header:hover { background: var(--surface2); }
+  .cat-arrow { font-size: 0.6rem; color: var(--text-muted); transition: transform 0.2s; }
+  .cat-arrow.open { transform: rotate(90deg); }
+  .cat-name {
+    font-size: 0.62rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); flex: 1;
+  }
+  .cat-count {
+    font-size: 0.62rem; font-weight: 700;
+    padding: 0.1rem 0.4rem; border-radius: 999px;
+    background: var(--lavender); color: var(--text);
+  }
+
+  .asset-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.45rem 1rem;
+    cursor: grab; transition: background 0.15s;
+    border-radius: 0;
+  }
+  .asset-item:hover { background: var(--surface2); }
+  .asset-item:active { cursor: grabbing; }
+
+  .asset-swatch {
+    width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+  }
+  .asset-label { font-size: 0.78rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .asset-stock { font-size: 0.68rem; color: var(--text-muted); flex-shrink: 0; }
+  .asset-price { font-size: 0.68rem; color: var(--text-muted); flex-shrink: 0; }
+
+  .stock-warn { color: #f87171 !important; font-weight: 600; }
+
+  /* ══════════════════
+     CANVAS
+  ══════════════════ */
+  .canvas-zone {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, #eae6e0 0%, #dbd5cc 50%, #cdc6bc 100%);
+  }
+
+  [data-theme="dark"] .canvas-zone {
+    background: linear-gradient(160deg, #1e1a28 0%, #1a1624 50%, #16121e 100%);
+  }
+
+  /* Grid overlay */
+  .canvas-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(42,33,24,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(42,33,24,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  [data-theme="dark"] .canvas-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  }
+
+  /* simulated 3D floor perspective */
+  .scene-container {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .scene-3d {
+    position: relative;
+    width: 100%; height: 100%;
+  }
+
+  .floor-plane {
+    position: absolute;
+    bottom: 8%; left: 8%; right: 8%;
+    height: 60%;
+    background: linear-gradient(155deg, #e0dbd2 0%, #cec8be 60%, #bdb6ab 100%);
+    transform: perspective(800px) rotateX(38deg);
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 3px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  }
+  [data-theme="dark"] .floor-plane {
+    background: linear-gradient(155deg, #2a2438 0%, #221e30 60%, #1e1a2c 100%);
+    border-color: rgba(255,255,255,0.06);
+  }
+
+  .wall-back {
+    position: absolute;
+    top: 3%; left: 8%; right: 8%;
+    height: 45%;
+    background: linear-gradient(180deg, #e8e4de 0%, #ddd8d0 100%);
+    transform: perspective(800px) rotateX(-8deg);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 3px;
+  }
+  [data-theme="dark"] .wall-back {
+    background: linear-gradient(180deg, #252030 0%, #201c2e 100%);
+    border-color: rgba(255,255,255,0.04);
+  }
+
+  /* Furniture primitives */
+  .prim {
+    position: absolute;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .prim:hover { filter: brightness(1.12); transform: scale(1.05); cursor: pointer; }
+  .prim.selected { outline: 2px solid #FFD700; outline-offset: 2px; }
+
+  /* Chairs */
+  .p-chair { width: 26px; height: 26px; background: #f0a0b4; border-radius: 5px; }
+  .pc1 { bottom: 35%; left: 20%; animation: pFloat 3.5s ease-in-out infinite; }
+  .pc2 { bottom: 35%; left: 25%; animation: pFloat 3.5s 0.3s ease-in-out infinite; }
+  .pc3 { bottom: 35%; left: 30%; animation: pFloat 3.5s 0.6s ease-in-out infinite; }
+  .pc4 { bottom: 28%; left: 22%; animation: pFloat 3.5s 0.2s ease-in-out infinite; }
+  .pc5 { bottom: 28%; left: 27%; animation: pFloat 3.5s 0.5s ease-in-out infinite; }
+
+  /* Sofas */
+  .p-sofa { width: 50px; height: 28px; background: #f0a0b4; border-radius: 6px; }
+  .ps1 { bottom: 22%; right: 30%; animation: pFloat 4s 1s ease-in-out infinite; }
+
+  /* Tables */
+  .p-table { width: 58px; height: 16px; background: #E8735A; border-radius: 4px; }
+  .pt1 { bottom: 40%; left: 38%; animation: pFloat 4s 0.4s ease-in-out infinite; }
+  .pt2 { bottom: 30%; left: 50%; animation: pFloat 4s 0.8s ease-in-out infinite; }
+  .pt3 { bottom: 24%; right: 22%; animation: pFloat 4s 1.2s ease-in-out infinite; }
+
+  /* Staging */
+  .p-stage { width: 140px; height: 16px; background: #b9a3f0; border-radius: 5px; }
+  .pst1 { bottom: 50%; left: 25%; animation: pFloat 5s 0.2s ease-in-out infinite; }
+
+  /* Chandeliers */
+  .p-chandelier {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #F9E45B;
+    box-shadow: 0 0 16px rgba(249,228,91,0.7), 0 0 32px rgba(249,228,91,0.3);
+  }
+  .pch1 { bottom: 60%; left: 44%; animation: pFloat 4s 0.6s ease-in-out infinite; }
+  .pch2 { bottom: 62%; left: 58%; animation: pFloat 4s 1s ease-in-out infinite; }
+
+  /* Décor */
+  .p-decor { width: 14px; height: 18px; background: #4DB8A4; border-radius: 50% 50% 3px 3px; }
+  .pd1 { bottom: 36%; left: 42%; animation: pFloat 3s 0.7s ease-in-out infinite; }
+  .pd2 { bottom: 36%; left: 56%; animation: pFloat 3s 1.1s ease-in-out infinite; }
+
+  /* Backdrop */
+  .p-backdrop { width: 10px; height: 70px; background: rgba(135,206,235,0.7); border-radius: 3px; }
+  .pb1 { bottom: 40%; right: 16%; animation: pFloat 5s 0.3s ease-in-out infinite; }
+  .pb2 { bottom: 40%; right: 19%; animation: pFloat 5s 0.9s ease-in-out infinite; }
+
+  @keyframes pFloat {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  /* Selected label */
+  .selected-label {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.68rem; font-weight: 600;
+    box-shadow: var(--shadow);
+    pointer-events: none;
+    white-space: nowrap;
+    bottom: 50%; left: 38%;
+    transform: translateX(-50%) translateY(-28px);
+    animation: fadeUp 0.2s ease both;
+  }
+
+  @keyframes fadeUp { from { opacity:0; transform: translateX(-50%) translateY(-20px); } to { opacity:1; transform: translateX(-50%) translateY(-28px); } }
+
+  /* Floating toolbar overlay */
+  .canvas-toolbar {
+    position: absolute;
+    top: 0.85rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 0.3rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.35rem 0.5rem;
+    box-shadow: var(--shadow-lg);
+    z-index: 20;
+  }
+
+  .ct-btn {
+    display: flex; align-items: center; gap: 0.3rem;
+    padding: 0.35rem 0.7rem; border-radius: 8px;
+    border: none; background: transparent;
+    font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 500;
+    color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+  }
+  .ct-btn:hover { background: var(--surface2); color: var(--text); }
+  .ct-btn.active { background: var(--lavender); color: var(--text); font-weight: 600; }
+  .ct-btn.danger:hover { background: var(--rose); color: #8a2840; }
+  .ct-sep { width: 1px; height: 18px; background: var(--border); margin: 0 0.1rem; }
+
+  /* Top-right canvas controls */
+  .canvas-tr {
+    position: absolute; top: 0.85rem; right: 0.85rem;
+    display: flex; gap: 0.4rem; z-index: 20;
+  }
+
+  .canvas-pill {
+    display: flex; align-items: center; gap: 0.3rem;
+    padding: 0.35rem 0.75rem; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border);
+    box-shadow: var(--shadow); font-size: 0.72rem; font-weight: 500;
+    color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+  }
+  .canvas-pill:hover { background: var(--lavender); color: var(--text); }
+
+  /* Bottom-right zoom */
+  .canvas-br {
+    position: absolute; bottom: 1rem; right: 0.85rem;
+    display: flex; flex-direction: column; gap: 0.3rem; z-index: 20;
+  }
+
+  .zoom-btn {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: var(--surface); border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; cursor: pointer; color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .zoom-btn:hover { background: var(--lavender); color: var(--text); }
+
+  /* Bottom-left info */
+  .canvas-bl {
+    position: absolute; bottom: 1rem; left: 0.85rem;
+    display: flex; gap: 0.5rem; z-index: 20;
+    flex-wrap: wrap;
+  }
+
+  .info-chip {
+    display: flex; align-items: center; gap: 0.35rem;
+    padding: 0.28rem 0.65rem; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border);
+    box-shadow: var(--shadow); font-size: 0.65rem; font-weight: 500;
+    color: var(--text-muted);
+  }
+  .chip-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* ══════════════════
+     RIGHT PANEL
+  ══════════════════ */
+  .right-panel {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .right-panel::-webkit-scrollbar { width: 3px; }
+  .right-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+  .rp-section {
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .rp-label {
+    font-size: 0.62rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 0.75rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .rp-label-action {
+    font-size: 0.62rem; font-weight: 600;
+    color: var(--accent); cursor: pointer; letter-spacing: 0;
+  }
+
+  /* Budget */
+  .budget-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem; font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+  .budget-ceiling-text { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+  .prog-track {
+    height: 7px; border-radius: 999px;
+    background: var(--surface2); overflow: hidden; margin-bottom: 0.35rem;
+  }
+  .prog-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--lavender), var(--lavender-d));
+    animation: growW 1.2s ease both;
+  }
+  @keyframes growW { from { width: 0; } }
+
+  .prog-row { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); }
+
+  /* breakdown */
+  .breakdown { margin-top: 0.9rem; display: flex; flex-direction: column; gap: 0.55rem; }
+  .bd-row { display: flex; align-items: center; gap: 0.5rem; }
+  .bd-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .bd-name { font-size: 0.75rem; flex: 1; }
+  .bd-bar-track { width: 50px; height: 4px; border-radius: 999px; background: var(--surface2); overflow: hidden; }
+  .bd-bar-fill { height: 100%; border-radius: 999px; }
+  .bd-val { font-size: 0.72rem; font-weight: 600; text-align: right; min-width: 52px; font-family: 'Playfair Display', serif; }
+
+  /* lighting */
+  .lighting-row { display: flex; flex-direction: column; gap: 0.6rem; }
+  .light-item { display: flex; align-items: center; gap: 0.6rem; }
+  .light-name { font-size: 0.75rem; min-width: 68px; }
+  .light-slider {
+    flex: 1; height: 4px; border-radius: 999px;
+    -webkit-appearance: none; appearance: none;
+    background: var(--surface2); outline: none; cursor: pointer;
+  }
+  .light-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--lavender-d); cursor: pointer;
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--lavender-d);
+  }
+  .light-pct { font-size: 0.68rem; color: var(--text-muted); min-width: 28px; text-align: right; }
+
+  /* placed items */
+  .placed-list { display: flex; flex-direction: column; gap: 0.4rem; }
+  .placed-item {
+    display: flex; align-items: center; gap: 0.55rem;
+    padding: 0.5rem 0.6rem; border-radius: 9px;
+    background: var(--surface2); border: 1px solid var(--border);
+    transition: all 0.15s; cursor: pointer;
+  }
+  .placed-item:hover { border-color: var(--lavender-d); background: var(--lavender); }
+  .placed-item.sel { border-color: #FFD700; background: var(--lemon); }
+  .pi-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .pi-name { font-size: 0.75rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pi-qty { font-size: 0.65rem; color: var(--text-muted); }
+  .pi-del { font-size: 0.7rem; color: var(--text-muted); opacity: 0; transition: opacity 0.15s; cursor: pointer; }
+  .placed-item:hover .pi-del { opacity: 1; }
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ROW 1: TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="#" class="logo">✦ Dream<span>Stage</span></a>
+      <div class="topbar-divider"></div>
+      <div class="back-btn">←</div>
+      <div class="event-info">
+        <div class="event-name-top">Ambereen</div>
+        <div class="event-meta-top">🎂 Birthday · 3 March 2026 · Budget: Rs. 20,000</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="top-nav-link">Home</button>
+      <button class="top-nav-link active">Events</button>
+      <button class="top-nav-link">Venues</button>
+      <div class="topbar-divider"></div>
+      <div class="saved-pill">✓ Saved</div>
+      <button class="theme-toggle" id="themeToggle"></button>
+    </div>
+  </header>
+
+  <!-- ROW 2: TAB BAR -->
+  <div class="tab-bar">
+    <div class="tab active"><span class="tab-icon">🏛️</span> 3D Editor</div>
+    <div class="tab"><span class="tab-icon">💰</span> Budget</div>
+    <div class="tab"><span class="tab-icon">💬</span> Comments</div>
+    <div class="tab"><span class="tab-icon">✅</span> Checklist</div>
+    <div class="tab"><span class="tab-icon">⚙️</span> Settings</div>
+    <div class="tab-bar-right">
+      <div class="venue-badge">📍 No venue booked — Book in Settings</div>
+    </div>
+  </div>
+
+  <!-- ROW 3: TOOLBAR -->
+  <div class="toolbar">
+    <button class="tool-btn active"><span class="tool-icon">✛</span> Move</button>
+    <button class="tool-btn"><span class="tool-icon">↻</span> Rotate</button>
+    <button class="tool-btn"><span class="tool-icon">⤡</span> Scale</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn danger"><span class="tool-icon">🗑</span> Delete</button>
+    <button class="tool-btn"><span class="tool-icon">↩</span> Undo</button>
+    <button class="tool-btn"><span class="tool-icon">↪</span> Redo</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn active"><span class="tool-icon">🔄</span> Orbit</button>
+    <button class="tool-btn"><span class="tool-icon">🚶</span> Walk</button>
+    <div class="toolbar-right">
+      <button class="light-toggle-btn">☀️ Day</button>
+      <button class="light-toggle-btn">🌙 Night</button>
+    </div>
+  </div>
+
+  <!-- ROW 4: BODY -->
+  <div class="body">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-title">Assets</div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" type="text" placeholder="Search assets...">
+        </div>
+      </div>
+      <div class="sidebar-scroll">
+
+        <!-- SEATING -->
+        <div class="cat-header" onclick="toggleCat(this)">
+          <span class="cat-arrow open">▶</span>
+          <span class="cat-name">Seating</span>
+          <span class="cat-count">6</span>
+        </div>
+        <div class="cat-items">
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#f0a0b4"></div>
+            <div class="asset-label">Banquet Chair</div>
+            <div class="asset-stock">298</div>
+          </div>
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#f0a0b4"></div>
+            <div class="asset-label">Chiavari Chair</div>
+            <div class="asset-stock">197</div>
+          </div>
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#f0a0b4"></div>
+            <div class="asset-label">Lounge Chair</div>
+            <div class="asset-stock stock-warn">3</div>
+          </div>
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#f0a0b4"></div>
+            <div class="asset-label">Love Seat Sofa</div>
+            <div class="asset-stock">40</div>
+          </div>
+        </div>
+
+        <!-- TABLES -->
+        <div class="cat-header" onclick="toggleCat(this)">
+          <span class="cat-arrow open">▶</span>
+          <span class="cat-name">Tables</span>
+          <span class="cat-count">4</span>
+        </div>
+        <div class="cat-items">
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#E8735A"></div>
+            <div class="asset-label">Round Table</div>
+            <div class="asset-stock">85</div>
+          </div>
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#E8735A"></div>
+            <div class="asset-label">Long Banquet Table</div>
+            <div class="asset-stock">32</div>
+          </div>
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#E8735A"></div>
+            <div class="asset-label">Cocktail Table</div>
+            <div class="asset-stock">60</div>
+          </div>
+        </div>
+
+        <!-- LIGHTING -->
+        <div class="cat-header" onclick="toggleCat(this)">
+          <span class="cat-arrow open">▶</span>
+          <span class="cat-name">Lighting</span>
+          <span class="cat-count">3</span>
+        </div>
+        <div class="cat-items">
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#F9E45B;border:1px solid rgba(0,0,0,0.1)"></div>
+            <div class="asset-label">Crystal Chandelier</div>
+            <div class="asset-stock">12</div>
+          </div>
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#F9E45B;border:1px solid rgba(0,0,0,0.1)"></div>
+            <div class="asset-label">Pendant Light</div>
+            <div class="asset-stock">50</div>
+          </div>
+        </div>
+
+        <!-- DÉCOR -->
+        <div class="cat-header" onclick="toggleCat(this)">
+          <span class="cat-arrow open">▶</span>
+          <span class="cat-name">Décor</span>
+          <span class="cat-count">5</span>
+        </div>
+        <div class="cat-items">
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#4DB8A4"></div>
+            <div class="asset-label">Floral Centrepiece</div>
+            <div class="asset-stock">120</div>
+          </div>
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#4DB8A4"></div>
+            <div class="asset-label">Flower Arch</div>
+            <div class="asset-stock stock-warn">2</div>
+          </div>
+        </div>
+
+        <!-- STAGING -->
+        <div class="cat-header" onclick="toggleCat(this)">
+          <span class="cat-arrow open">▶</span>
+          <span class="cat-name">Staging</span>
+          <span class="cat-count">2</span>
+        </div>
+        <div class="cat-items">
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#b9a3f0"></div>
+            <div class="asset-label">Main Stage Platform</div>
+            <div class="asset-stock">8</div>
+          </div>
+        </div>
+
+        <!-- BACKDROPS -->
+        <div class="cat-header" onclick="toggleCat(this)">
+          <span class="cat-arrow open">▶</span>
+          <span class="cat-name">Backdrops</span>
+          <span class="cat-count">4</span>
+        </div>
+        <div class="cat-items">
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#87CEEB"></div>
+            <div class="asset-label">Floral Backdrop</div>
+            <div class="asset-stock">15</div>
+          </div>
+          <div class="asset-item">
+            <div class="asset-swatch" style="background:#87CEEB"></div>
+            <div class="asset-label">Sequin Backdrop</div>
+            <div class="asset-stock">10</div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- CANVAS -->
+    <div class="canvas-zone">
+      <div class="canvas-grid"></div>
+
+      <div class="scene-container">
+        <div class="scene-3d">
+          <div class="wall-back"></div>
+          <div class="floor-plane"></div>
+          <!-- Primitives -->
+          <div class="prim p-stage pst1"></div>
+          <div class="prim p-table pt1"></div>
+          <div class="prim p-table pt2"></div>
+          <div class="prim p-table pt3"></div>
+          <div class="prim p-chair pc1"></div>
+          <div class="prim p-chair pc2"></div>
+          <div class="prim p-chair pc3"></div>
+          <div class="prim p-chair pc4 selected"></div>
+          <div class="prim p-chair pc5"></div>
+          <div class="prim p-sofa ps1"></div>
+          <div class="prim p-chandelier pch1"></div>
+          <div class="prim p-chandelier pch2"></div>
+          <div class="prim p-decor pd1"></div>
+          <div class="prim p-decor pd2"></div>
+          <div class="prim p-backdrop pb1"></div>
+          <div class="prim p-backdrop pb2"></div>
+          <!-- Selected label -->
+          <div class="selected-label">✦ Banquet Chair #4</div>
+        </div>
+      </div>
+
+      <!-- Floating toolbar -->
+      <div class="canvas-toolbar">
+        <button class="ct-btn active">✛ Move</button>
+        <button class="ct-btn">↻ Rotate</button>
+        <button class="ct-btn">⤡ Scale</button>
+        <div class="ct-sep"></div>
+        <button class="ct-btn">↩</button>
+        <button class="ct-btn">↪</button>
+        <button class="ct-btn danger">🗑</button>
+        <div class="ct-sep"></div>
+        <button class="ct-btn active">🔄 Orbit</button>
+        <button class="ct-btn">🚶 Walk</button>
+      </div>
+
+      <!-- Top right -->
+      <div class="canvas-tr">
+        <div class="canvas-pill" id="fsBtn" onclick="toggleFS()">⛶ Fullscreen</div>
+        <div class="canvas-pill">☀️ Day</div>
+      </div>
+
+      <!-- Bottom right zoom -->
+      <div class="canvas-br">
+        <div class="zoom-btn">＋</div>
+        <div class="zoom-btn">－</div>
+        <div class="zoom-btn">⟳</div>
+      </div>
+
+      <!-- Bottom left info chips -->
+      <div class="canvas-bl">
+        <div class="info-chip"><div class="chip-dot" style="background:#f0a0b4"></div> 5 chairs</div>
+        <div class="info-chip"><div class="chip-dot" style="background:#E8735A"></div> 3 tables</div>
+        <div class="info-chip"><div class="chip-dot" style="background:#b9a3f0"></div> 1 stage</div>
+        <div class="info-chip"><div class="chip-dot" style="background:#F9E45B"></div> 2 lights</div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel">
+
+      <!-- Budget -->
+      <div class="rp-section">
+        <div class="rp-label">Budget <span class="rp-label-action">Edit ceiling</span></div>
+        <div class="budget-num">Rs. 16,500</div>
+        <div class="budget-ceiling-text">Ceiling: Rs. 20,000 · 82.5% used</div>
+        <div class="prog-track">
+          <div class="prog-fill" style="width:82.5%"></div>
+        </div>
+        <div class="prog-row">
+          <span>Rs. 16,500 spent</span>
+          <span>Rs. 3,500 left</span>
+        </div>
+        <div class="breakdown">
+          <div class="bd-row">
+            <div class="bd-dot" style="background:#f0a0b4"></div>
+            <div class="bd-name">Seating</div>
+            <div class="bd-bar-track"><div class="bd-bar-fill" style="width:55%;background:#f0a0b4"></div></div>
+            <div class="bd-val">Rs. 7,500</div>
+          </div>
+          <div class="bd-row">
+            <div class="bd-dot" style="background:#E8735A"></div>
+            <div class="bd-name">Tables</div>
+            <div class="bd-bar-track"><div class="bd-bar-fill" style="width:40%;background:#E8735A"></div></div>
+            <div class="bd-val">Rs. 5,000</div>
+          </div>
+          <div class="bd-row">
+            <div class="bd-dot" style="background:#b9a3f0"></div>
+            <div class="bd-name">Staging</div>
+            <div class="bd-bar-track"><div class="bd-bar-fill" style="width:25%;background:#b9a3f0"></div></div>
+            <div class="bd-val">Rs. 2,000</div>
+          </div>
+          <div class="bd-row">
+            <div class="bd-dot" style="background:#F9E45B"></div>
+            <div class="bd-name">Lighting</div>
+            <div class="bd-bar-track"><div class="bd-bar-fill" style="width:15%;background:#F9E45B"></div></div>
+            <div class="bd-val">Rs. 2,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lighting -->
+      <div class="rp-section">
+        <div class="rp-label">Lighting</div>
+        <div class="lighting-row">
+          <div class="light-item">
+            <div class="light-name">☀️ Ambient</div>
+            <input class="light-slider" type="range" min="0" max="100" value="60">
+            <div class="light-pct">60%</div>
+          </div>
+          <div class="light-item">
+            <div class="light-name">💡 Directional</div>
+            <input class="light-slider" type="range" min="0" max="100" value="80">
+            <div class="light-pct">80%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Placed items -->
+      <div class="rp-section">
+        <div class="rp-label">Placed Assets <span class="rp-label-action">Clear all</span></div>
+        <div class="placed-list">
+          <div class="placed-item sel">
+            <div class="pi-swatch" style="background:#f0a0b4"></div>
+            <div class="pi-name">Banquet Chair #4</div>
+            <div class="pi-qty">Rs. 1,500</div>
+            <div class="pi-del">✕</div>
+          </div>
+          <div class="placed-item">
+            <div class="pi-swatch" style="background:#f0a0b4"></div>
+            <div class="pi-name">Banquet Chair</div>
+            <div class="pi-qty">×4 more</div>
+            <div class="pi-del">✕</div>
+          </div>
+          <div class="placed-item">
+            <div class="pi-swatch" style="background:#E8735A"></div>
+            <div class="pi-name">Round Table</div>
+            <div class="pi-qty">×3</div>
+            <div class="pi-del">✕</div>
+          </div>
+          <div class="placed-item">
+            <div class="pi-swatch" style="background:#b9a3f0"></div>
+            <div class="pi-name">Stage Platform</div>
+            <div class="pi-qty">×1</div>
+            <div class="pi-del">✕</div>
+          </div>
+          <div class="placed-item">
+            <div class="pi-swatch" style="background:#F9E45B"></div>
+            <div class="pi-name">Crystal Chandelier</div>
+            <div class="pi-qty">×2</div>
+            <div class="pi-del">✕</div>
+          </div>
+          <div class="placed-item">
+            <div class="pi-swatch" style="background:#f0a0b4"></div>
+            <div class="pi-name">Love Seat Sofa</div>
+            <div class="pi-qty">×1</div>
+            <div class="pi-del">✕</div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<script>
+  // Theme toggle
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    document.documentElement.dataset.theme =
+      document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+
+  // Category collapse
+  function toggleCat(header) {
+    const arrow = header.querySelector('.cat-arrow');
+    const items = header.nextElementSibling;
+    const isOpen = arrow.classList.contains('open');
+    arrow.classList.toggle('open', !isOpen);
+    items.style.display = isOpen ? 'none' : 'block';
+  }
+
+  // Toolbar buttons
+  document.querySelectorAll('.ct-btn:not(.danger)').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const group = this.closest('.canvas-toolbar');
+      // only toggle within transform group or view group
+      group.querySelectorAll('.ct-btn').forEach(b => {
+        if (b.textContent.includes('Move') || b.textContent.includes('Rotate') || b.textContent.includes('Scale')) {
+          if (this.textContent.includes('Move') || this.textContent.includes('Rotate') || this.textContent.includes('Scale')) {
+            b.classList.remove('active');
+          }
+        }
+        if (b.textContent.includes('Orbit') || b.textContent.includes('Walk')) {
+          if (this.textContent.includes('Orbit') || this.textContent.includes('Walk')) {
+            b.classList.remove('active');
+          }
+        }
+      });
+      this.classList.add('active');
+    });
+  });
+
+  // Slider value update
+  document.querySelectorAll('.light-slider').forEach(slider => {
+    slider.addEventListener('input', function() {
+      this.nextElementSibling.textContent = this.value + '%';
+    });
+  });
+
+  // Placed item selection
+  document.querySelectorAll('.placed-item').forEach(item => {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.placed-item').forEach(i => i.classList.remove('sel'));
+      this.classList.add('sel');
+    });
+  });
+
+  // Fullscreen
+  function toggleFS() {
+    const btn = document.getElementById('fsBtn');
+    const canvas = document.querySelector('.canvas-zone');
+    if (!document.fullscreenElement) {
+      canvas.requestFullscreen && canvas.requestFullscreen();
+      btn.textContent = '⤡ Exit Full';
+    } else {
+      document.exitFullscreen && document.exitFullscreen();
+      btn.textContent = '⛶ Fullscreen';
+    }
+  }
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      document.getElementById('fsBtn').textContent = '⛶ Fullscreen';
+    }
+  });
+</script>
+</body>
+</html>

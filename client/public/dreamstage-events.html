@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DreamStage — My Events</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3f0ec;
+    --text: #2a2118;
+    --text-muted: #7a6e62;
+    --border: rgba(42,33,24,0.1);
+    --rose: #f9c5d1; --rose-d: #f0a0b4;
+    --mint: #b8f0e0; --mint-d: #8ee4cc;
+    --lavender: #d4c5f9; --lavender-d: #b9a3f0;
+    --peach: #ffd6b3; --peach-d: #ffc090;
+    --sky: #b3deff; --sky-d: #8ecbff;
+    --lemon: #fef3a0; --lemon-d: #fde97a;
+    --accent: #c9a6e4;
+    --accent-glow: rgba(201,166,228,0.3);
+    --shadow: 0 8px 32px rgba(42,33,24,0.08);
+    --shadow-lg: 0 20px 60px rgba(42,33,24,0.12);
+  }
+  [data-theme="dark"] {
+    --bg: #16121e; --surface: #211c2e; --surface2: #2a2438;
+    --text: #f0eaff; --text-muted: #9b92b8;
+    --border: rgba(240,234,255,0.1);
+    --rose: #7a3a52; --rose-d: #a0506e;
+    --mint: #2a6654; --mint-d: #3a8a72;
+    --lavender: #4a3878; --lavender-d: #6550a0;
+    --peach: #7a4e28; --peach-d: #a06835;
+    --sky: #2a4e7a; --sky-d: #3a6aa0;
+    --lemon: #5a5020; --lemon-d: #7a6e2a;
+    --accent: #9b72cc; --accent-glow: rgba(155,114,204,0.25);
+    --shadow: 0 8px 32px rgba(0,0,0,0.3);
+    --shadow-lg: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.4s, color 0.4s;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND ORBS ── */
+  .bg-orbs {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.28;
+    animation: floatOrb 10s ease-in-out infinite;
+  }
+  [data-theme="dark"] .orb { opacity: 0.13; }
+  .orb-1 { width: 500px; height: 500px; background: var(--rose-d); top: -150px; right: -100px; animation-delay: 0s; }
+  .orb-2 { width: 350px; height: 350px; background: var(--lavender-d); bottom: 10%; left: -80px; animation-delay: 3s; }
+  .orb-3 { width: 280px; height: 280px; background: var(--mint-d); top: 40%; right: 5%; animation-delay: 6s; }
+  @keyframes floatOrb {
+    0%,100% { transform: translate(0,0); }
+    50% { transform: translate(20px, -30px); }
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    padding: 0 3rem;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.4s;
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 2rem; }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text); text-decoration: none;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .logo-icon { font-size: 1.1rem; }
+  .logo span {
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d), var(--sky-d));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .nav-links { display: flex; gap: 0.3rem; }
+  .nav-link {
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    font-size: 0.875rem; font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .nav-link:hover { background: var(--surface2); color: var(--text); }
+  .nav-link.active { background: var(--lavender); color: var(--text); font-weight: 600; }
+
+  .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+
+  .theme-toggle {
+    width: 48px; height: 26px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer; position: relative;
+    transition: background 0.3s;
+  }
+  .theme-toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  [data-theme="dark"] .theme-toggle::after {
+    transform: translateX(22px);
+    background: linear-gradient(135deg, var(--lavender-d), var(--sky-d));
+  }
+
+  .nav-user {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.85rem; font-weight: 500; color: var(--text-muted);
+    cursor: pointer;
+  }
+  .nav-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700; color: white;
+  }
+
+  /* ── PAGE WRAPPER ── */
+  .page {
+    position: relative; z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex; align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .page-header-left {}
+  .page-eyebrow {
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 0.4rem;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem; font-weight: 700;
+    letter-spacing: -0.03em; line-height: 1.1;
+  }
+  .page-title em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .page-sub {
+    font-size: 0.875rem; color: var(--text-muted);
+    font-weight: 300; margin-top: 0.4rem;
+  }
+
+  .btn-new {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 1.6rem;
+    border-radius: 999px;
+    border: none;
+    background: var(--text); color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+    white-space: nowrap;
+  }
+  .btn-new:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); opacity: 0.88; }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1rem; margin-bottom: 2rem;
+    animation: fadeUp 0.5s 0.07s ease both;
+  }
+
+  .stat-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.1rem 1.2rem;
+    display: flex; align-items: center; gap: 0.9rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .stat-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+  .stat-tile-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+
+  .stat-tile-info {}
+  .stat-tile-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem; font-weight: 700;
+    line-height: 1; letter-spacing: -0.02em;
+  }
+  .stat-tile-label {
+    font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-muted); margin-top: 0.15rem;
+  }
+
+  /* ── FILTERS ── */
+  .filter-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.3rem;
+    animation: fadeUp 0.5s 0.12s ease both;
+  }
+
+  .filter-tabs { display: flex; gap: 0.3rem; }
+  .filter-tab {
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: transparent; color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .filter-tab:hover { background: var(--surface2); color: var(--text); }
+  .filter-tab.active { background: var(--lavender); border-color: var(--lavender); color: var(--text); font-weight: 600; }
+
+  .sort-select {
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem; font-weight: 500;
+    cursor: pointer; outline: none;
+    transition: border-color 0.2s;
+  }
+  .sort-select:focus { border-color: var(--accent); }
+
+  /* ── EVENT CARDS ── */
+  .events-list {
+    display: flex; flex-direction: column; gap: 1rem;
+    animation: fadeUp 0.5s 0.16s ease both;
+  }
+
+  .event-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.25s, box-shadow 0.25s;
+    cursor: pointer;
+    position: relative;
+  }
+  .event-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+  .event-card-accent {
+    height: 3px; width: 100%;
+  }
+  .acc-wedding { background: linear-gradient(90deg, var(--rose), var(--lavender-d)); }
+  .acc-corporate { background: linear-gradient(90deg, var(--sky), var(--lavender-d)); }
+  .acc-birthday { background: linear-gradient(90deg, var(--peach), var(--lemon-d)); }
+
+  .event-card-inner {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 1.2rem;
+    padding: 1.2rem 1.5rem;
+    align-items: center;
+  }
+
+  .event-date-box {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .date-month {
+    font-size: 0.58rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    opacity: 0.75; line-height: 1;
+  }
+  .date-day {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem; font-weight: 700; line-height: 1;
+    margin-top: 1px;
+  }
+
+  .event-info {}
+  .event-name-row {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 0.3rem; flex-wrap: wrap;
+  }
+  .event-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .event-status-pill {
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .sp-draft { background: var(--lemon); color: #5a4e10; }
+  .sp-editing { background: var(--rose); color: #8a2840; }
+  .sp-approved { background: var(--mint); color: #1a5e44; }
+
+  .event-meta {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.78rem; color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+  .meta-sep { opacity: 0.3; }
+  .event-type-badge {
+    padding: 0.12rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.68rem; font-weight: 600;
+  }
+  .tb-wedding { background: var(--rose); color: #8a2840; }
+  .tb-corporate { background: var(--sky); color: #1a4e7a; }
+  .tb-birthday { background: var(--peach); color: #7a4e28; }
+
+  /* budget mini bar */
+  .event-budget-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-top: 0.65rem;
+  }
+  .budget-track {
+    flex: 1; height: 5px;
+    border-radius: 999px;
+    background: var(--surface2);
+    overflow: hidden;
+    max-width: 180px;
+  }
+  .budget-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--lavender), var(--lavender-d));
+    animation: growBudget 1s ease both;
+  }
+  @keyframes growBudget { from { width: 0 !important; } }
+  .budget-text {
+    font-size: 0.72rem; color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .event-card-right {
+    display: flex; align-items: center; gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .days-pill {
+    padding: 0.3rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.75rem; font-weight: 600;
+    white-space: nowrap;
+  }
+  .dp-urgent { background: var(--rose); color: #8a2840; }
+  .dp-soon { background: var(--lemon); color: #5a4e10; }
+  .dp-ok { background: var(--mint); color: #1a5e44; }
+
+  .icon-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; cursor: pointer;
+    transition: all 0.2s; color: var(--text-muted);
+  }
+  .icon-btn:hover { background: var(--rose); border-color: var(--rose); color: #8a2840; }
+
+  .chevron-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; cursor: pointer;
+    transition: all 0.2s; color: var(--text-muted);
+  }
+  .chevron-btn:hover { background: var(--lavender); border-color: var(--lavender); color: var(--text); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .empty-orb {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose), var(--lavender));
+    filter: blur(30px);
+    opacity: 0.4;
+    margin: 0 auto 2rem;
+  }
+
+  .empty-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; font-style: italic;
+    margin-bottom: 0.6rem;
+  }
+  .empty-sub {
+    font-size: 0.9rem; color: var(--text-muted);
+    margin-bottom: 2rem; font-weight: 300;
+  }
+
+  /* ── NEW EVENT MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(42,33,24,0.35);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease both;
+    padding: 1.5rem;
+  }
+  .modal-overlay.hidden { display: none; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2rem;
+    width: 100%; max-width: 480px;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease both;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem; font-weight: 700;
+  }
+  .modal-close {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface2);
+    cursor: pointer; font-size: 1rem; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: var(--rose); color: #8a2840; }
+
+  .modal-field { margin-bottom: 1rem; }
+  .modal-label {
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 0.4rem; display: block;
+  }
+  .modal-input, .modal-select {
+    width: 100%; padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .modal-input:focus, .modal-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    background: var(--surface);
+  }
+  .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  .modal-btn {
+    width: 100%; padding: 0.85rem;
+    border-radius: 999px; border: none;
+    background: var(--text); color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; margin-top: 0.5rem;
+    transition: all 0.2s; box-shadow: var(--shadow);
+  }
+  .modal-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); opacity: 0.9; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 1.2rem; }
+    .page { padding: 2rem 1.2rem 4rem; }
+    .stat-strip { grid-template-columns: 1fr 1fr; }
+    .event-card-inner { grid-template-columns: 48px 1fr; }
+    .event-card-right { display: none; }
+    .page-title { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background orbs -->
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="#" class="logo">
+      <span class="logo-icon">✦</span>
+      Dream<span>Stage</span>
+    </a>
+    <div class="nav-links">
+      <a href="#" class="nav-link">Home</a>
+      <a href="#" class="nav-link active">Events</a>
+      <a href="#" class="nav-link">Venues</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+    <div class="nav-user">
+      <div class="nav-avatar">NR</div>
+      <span>nimra</span>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-eyebrow">Planner · nimra</div>
+      <h1 class="page-title">My <em>Events</em></h1>
+      <p class="page-sub">2 active events · next one in 22 days</p>
+    </div>
+    <button class="btn-new" onclick="openModal()">
+      <span>＋</span> New Event
+    </button>
+  </div>
+
+  <!-- Stat strip -->
+  <div class="stat-strip">
+    <div class="stat-tile">
+      <div class="stat-tile-icon" style="background:var(--lavender)">🗂️</div>
+      <div class="stat-tile-info">
+        <div class="stat-tile-val">2</div>
+        <div class="stat-tile-label">Active Events</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-icon" style="background:var(--rose)">📅</div>
+      <div class="stat-tile-info">
+        <div class="stat-tile-val">22d</div>
+        <div class="stat-tile-label">Next Event</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-icon" style="background:var(--mint)">💰</div>
+      <div class="stat-tile-info">
+        <div class="stat-tile-val">Rs. 200K</div>
+        <div class="stat-tile-label">Total Budget</div>
+      </div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-icon" style="background:var(--peach)">✅</div>
+      <div class="stat-tile-info">
+        <div class="stat-tile-val">0</div>
+        <div class="stat-tile-label">Pending Approvals</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-row">
+    <div class="filter-tabs">
+      <button class="filter-tab active">All Events</button>
+      <button class="filter-tab">Wedding</button>
+      <button class="filter-tab">Corporate</button>
+      <button class="filter-tab">Birthday</button>
+    </div>
+    <select class="sort-select">
+      <option>Sort: Date (soonest)</option>
+      <option>Sort: Date (latest)</option>
+      <option>Sort: Budget (high)</option>
+      <option>Sort: Name A–Z</option>
+    </select>
+  </div>
+
+  <!-- Events list -->
+  <div class="events-list">
+
+    <!-- Event 1: nimra -->
+    <div class="event-card">
+      <div class="event-card-accent acc-wedding"></div>
+      <div class="event-card-inner">
+        <div class="event-date-box" style="background:var(--rose)">
+          <div class="date-month">Mar</div>
+          <div class="date-day">25</div>
+        </div>
+        <div class="event-info">
+          <div class="event-name-row">
+            <div class="event-name">nimra</div>
+            <span class="event-status-pill sp-draft">⏸ Draft</span>
+          </div>
+          <div class="event-meta">
+            <span>📅 25 Mar 2026</span>
+            <span class="meta-sep">·</span>
+            <span class="event-type-badge tb-wedding">Wedding</span>
+            <span class="meta-sep">·</span>
+            <span>Budget: Rs. 200,000</span>
+          </div>
+          <div class="event-budget-row">
+            <div class="budget-track">
+              <div class="budget-fill" style="width:0%"></div>
+            </div>
+            <span class="budget-text">Rs. 0 spent · not started</span>
+          </div>
+        </div>
+        <div class="event-card-right">
+          <span class="days-pill dp-soon">⏰ 22 days</span>
+          <button class="icon-btn" title="Delete">🗑</button>
+          <button class="chevron-btn">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event 2: maha -->
+    <div class="event-card">
+      <div class="event-card-accent acc-wedding"></div>
+      <div class="event-card-inner">
+        <div class="event-date-box" style="background:var(--lavender)">
+          <div class="date-month">Mar</div>
+          <div class="date-day">25</div>
+        </div>
+        <div class="event-info">
+          <div class="event-name-row">
+            <div class="event-name">maha</div>
+            <span class="event-status-pill sp-draft">⏸ Draft</span>
+          </div>
+          <div class="event-meta">
+            <span>📅 25 Mar 2026</span>
+            <span class="meta-sep">·</span>
+            <span class="event-type-badge tb-wedding">Wedding</span>
+            <span class="meta-sep">·</span>
+            <span>No budget set</span>
+          </div>
+          <div class="event-budget-row">
+            <div class="budget-track">
+              <div class="budget-fill" style="width:0%"></div>
+            </div>
+            <span class="budget-text">Rs. 0 spent · not started</span>
+          </div>
+        </div>
+        <div class="event-card-right">
+          <span class="days-pill dp-soon">⏰ 22 days</span>
+          <button class="icon-btn" title="Delete">🗑</button>
+          <button class="chevron-btn">›</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NEW EVENT MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Create New Event</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Event Name</label>
+      <input class="modal-input" type="text" placeholder="e.g. Sarah & Ahmad — Winter Gala">
+    </div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <label class="modal-label">Event Type</label>
+        <select class="modal-select">
+          <option>Wedding</option>
+          <option>Corporate</option>
+          <option>Birthday</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Event Date</label>
+        <input class="modal-input" type="date">
+      </div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Budget Ceiling (Rs.)</label>
+      <input class="modal-input" type="number" placeholder="e.g. 3000000">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Venue (optional)</label>
+      <input class="modal-input" type="text" placeholder="e.g. Grand Ballroom, Lahore">
+    </div>
+    <button class="modal-btn">Create Event →</button>
+  </div>
+</div>
+
+<script>
+  // Theme toggle
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    document.documentElement.dataset.theme =
+      document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+
+  // Filter tabs
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // Modal
+  function openModal() {
+    document.getElementById('modalOverlay').classList.remove('hidden');
+  }
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.add('hidden');
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+</script>
+</body>
+</html>

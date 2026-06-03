@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DreamStage — Client Requirements Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Theme variables (dark default) ── */
+:root {
+  --bg: linear-gradient(135deg, #1a1025 0%, #12101e 60%, #1a0e1a 100%);
+  --bg-solid: #12101e;
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(192,132,252,0.18);
+  --text-primary: #ffffff;
+  --text-secondary: #9d8aba;
+  --text-label: #c5b8e0;
+  --input-bg: rgba(255,255,255,0.05);
+  --input-border: rgba(192,132,252,0.2);
+  --input-focus-bg: rgba(192,132,252,0.08);
+  --pill-bg: rgba(255,255,255,0.03);
+  --pill-border: rgba(192,132,252,0.25);
+  --pill-selected-bg: linear-gradient(135deg, rgba(192,132,252,0.25), rgba(244,114,182,0.2));
+  --pill-selected-border: #c084fc;
+  --meal-bg: rgba(255,255,255,0.03);
+  --meal-selected-bg: rgba(192,132,252,0.12);
+  --addon-selected-bg: rgba(192,132,252,0.1);
+  --prog-inactive-border: #3d3355;
+  --prog-inactive-text: #6b6080;
+  --prog-line: #3d3355;
+  --logo-color: #ffffff;
+  --accent: #c084fc;
+  --accent2: #f472b6;
+  --success-bg: rgba(192,132,252,0.08);
+  --toggle-bg: rgba(255,255,255,0.08);
+  --toggle-border: rgba(255,255,255,0.12);
+  --scheme: dark;
+}
+
+:root.light {
+  --bg: linear-gradient(135deg, #f8f4ff 0%, #fdf2f8 60%, #fff0fb 100%);
+  --bg-solid: #f8f4ff;
+  --card-bg: rgba(255,255,255,0.85);
+  --card-border: rgba(192,132,252,0.25);
+  --text-primary: #1e0a3c;
+  --text-secondary: #7c6899;
+  --text-label: #6b4fa0;
+  --input-bg: rgba(255,255,255,0.9);
+  --input-border: rgba(160,100,220,0.3);
+  --input-focus-bg: rgba(192,132,252,0.07);
+  --pill-bg: rgba(255,255,255,0.7);
+  --pill-border: rgba(192,132,252,0.3);
+  --pill-selected-bg: linear-gradient(135deg, rgba(192,132,252,0.2), rgba(244,114,182,0.15));
+  --pill-selected-border: #a855f7;
+  --meal-bg: rgba(255,255,255,0.8);
+  --meal-selected-bg: rgba(192,132,252,0.1);
+  --addon-selected-bg: rgba(192,132,252,0.08);
+  --prog-inactive-border: #d8c8f0;
+  --prog-inactive-text: #b0a0cc;
+  --prog-line: #e0d0f8;
+  --logo-color: #1e0a3c;
+  --accent: #9333ea;
+  --accent2: #ec4899;
+  --success-bg: rgba(192,132,252,0.06);
+  --toggle-bg: rgba(0,0,0,0.05);
+  --toggle-border: rgba(0,0,0,0.1);
+  --scheme: light;
+}
+
+body {
+  background: var(--bg);
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-primary);
+  transition: background 0.4s ease;
+}
+
+.ds-root {
+  padding: 2rem 1rem 3rem;
+  min-height: 100vh;
+  background: var(--bg);
+  transition: background 0.4s ease;
+}
+
+.ds-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.ds-logo {
+  font-family: 'Playfair Display', serif;
+  color: var(--logo-color);
+  font-size: 20px;
+  text-align: center;
+  transition: color 0.3s;
+}
+.ds-logo span { color: var(--accent); font-style: italic; }
+
+.theme-toggle {
+  position: absolute;
+  right: 0;
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
+  border-radius: 20px;
+  padding: 5px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Progress Bar ── */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+.prog-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.prog-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all 0.35s ease;
+}
+.prog-circle.done {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff;
+  border-color: transparent;
+}
+.prog-circle.active {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(192,132,252,0.15);
+}
+.prog-circle.inactive {
+  background: transparent;
+  color: var(--prog-inactive-text);
+  border-color: var(--prog-inactive-border);
+}
+.prog-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+.prog-label.active-lbl { color: var(--accent); font-weight: 600; }
+.prog-line {
+  width: 48px;
+  height: 2px;
+  background: var(--prog-line);
+  margin-bottom: 16px;
+  transition: background 0.4s;
+}
+.prog-line.done-line {
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+
+/* ── Card ── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  max-width: 580px;
+  margin: 0 auto;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(120,60,180,0.12);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.step-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  transition: color 0.3s;
+}
+.step-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  transition: color 0.3s;
+}
+
+.field-group { margin-bottom: 1rem; }
+.field-label {
+  font-size: 13px;
+  color: var(--text-label);
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: block;
+  transition: color 0.3s;
+}
+
+.ds-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: all 0.2s;
+  color-scheme: var(--scheme);
+}
+.ds-input:focus { border-color: var(--accent); background: var(--input-focus-bg); }
+.ds-input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+
+/* ── Pills ── */
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--pill-border);
+  color: var(--text-label);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--pill-bg);
+  font-family: 'DM Sans', sans-serif;
+  user-select: none;
+}
+.pill:hover { border-color: var(--accent); color: var(--text-primary); }
+.pill.selected {
+  background: var(--pill-selected-bg);
+  border-color: var(--pill-selected-border);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.pill.budget-pill {
+  border-radius: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+}
+
+/* ── Guest counter ── */
+.guest-input { display: flex; align-items: center; gap: 12px; }
+.guest-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--pill-border);
+  background: var(--addon-selected-bg);
+  color: var(--accent);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1;
+}
+.guest-btn:hover { border-color: var(--accent); transform: scale(1.08); }
+.guest-num {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 48px;
+  text-align: center;
+}
+
+/* ── Meal cards ── */
+.meal-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.meal-card {
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--meal-bg);
+  user-select: none;
+}
+.meal-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.meal-card.selected {
+  border-color: var(--accent);
+  background: var(--meal-selected-bg);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.meal-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.meal-desc { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; }
+.meal-price { font-size: 11px; color: var(--accent); font-weight: 500; }
+
+/* ── Add-ons ── */
+.addon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.addon-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--pill-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--pill-bg);
+  user-select: none;
+}
+.addon-item:hover { border-color: var(--accent); }
+.addon-item.selected { border-color: var(--accent); background: var(--addon-selected-bg); }
+.addon-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--pill-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.addon-item.selected .addon-check { background: var(--accent); border-color: var(--accent); }
+.addon-check-mark { color: #fff; font-size: 10px; font-weight: 700; }
+.addon-icon { font-size: 14px; }
+.addon-label { font-size: 12px; color: var(--text-label); }
+
+/* ── Venue grid ── */
+.venue-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.venue-card {
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--meal-bg);
+  text-align: center;
+  user-select: none;
+}
+.venue-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.venue-card.selected {
+  border-color: var(--accent);
+  background: var(--meal-selected-bg);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.venue-icon { font-size: 20px; margin-bottom: 4px; }
+.venue-name { font-size: 11px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; line-height: 1.2; }
+.venue-desc { font-size: 10px; color: var(--text-secondary); line-height: 1.3; }
+
+/* ── Buttons ── */
+.btn-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+.btn-prev {
+  background: transparent;
+  border: 1px solid var(--pill-border);
+  color: var(--text-secondary);
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.btn-prev:hover { border-color: var(--accent); color: var(--accent); }
+.btn-next {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  color: #fff;
+  padding: 10px 26px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.btn-next:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── Step animation ── */
+.step-anim { animation: slideIn 0.25s ease forwards; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(var(--slide-from, 20px)); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Success ── */
+.success-screen { text-align: center; padding: 2rem 1rem; }
+.success-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(192,132,252,0.2), rgba(244,114,182,0.15));
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 30px;
+  animation: popIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.success-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.success-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+.success-meta {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--success-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+.success-meta-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.success-meta-value { font-size: 15px; color: var(--text-primary); font-weight: 600; }
+
+/* ── Seat icon ── */
+.seat-icon { font-size: 15px; }
+
+/* ── Hidden steps ── */
+.step { display: none; }
+.step.active { display: block; }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .venue-grid { grid-template-columns: repeat(2, 1fr); }
+  .row2 { grid-template-columns: 1fr; }
+  .meal-cards { grid-template-columns: 1fr; }
+  .addon-grid { grid-template-columns: 1fr; }
+  .prog-line { width: 28px; }
+  .theme-toggle { padding: 5px 10px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div class="ds-root" id="app">
+
+  <!-- Header -->
+  <div class="ds-header">
+    <div class="ds-logo">✦ Dream<span>Stage</span></div>
+    <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️ Light mode</button>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar" id="progressBar"></div>
+
+  <!-- Steps Container -->
+  <div class="card step-anim" id="stepCard" style="--slide-from: 20px;">
+
+    <!-- STEP 1 -->
+    <div class="step active" id="step-1">
+      <p class="step-heading">Tell us about yourself</p>
+      <p class="step-sub">Step 1 of 4 — Your basic event info</p>
+      <div class="row2">
+        <div class="field-group">
+          <label class="field-label">Full name *</label>
+          <input class="ds-input" id="clientName" placeholder="Your name" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email address *</label>
+          <input class="ds-input" id="clientEmail" type="email" placeholder="you@email.com" />
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Event type</label>
+        <div class="pills" id="eventTypePills">
+          <div class="pill selected" onclick="selectPill('eventTypePills', this)">Wedding</div>
+          <div class="pill" onclick="selectPill('eventTypePills', this)">Mehndi</div>
+          <div class="pill" onclick="selectPill('eventTypePills', this)">Birthday</div>
+          <div class="pill" onclick="selectPill('eventTypePills', this)">Corporate</div>
+          <div class="pill" onclick="selectPill('eventTypePills', this)">Other</div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field-group">
+          <label class="field-label">Preferred event date</label>
+          <input class="ds-input" id="eventDate" type="date" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Number of guests</label>
+          <div class="guest-input">
+            <button class="guest-btn" onclick="changeGuests(-50)">−</button>
+            <span class="guest-num" id="guestCount">200</span>
+            <button class="guest-btn" onclick="changeGuests(50)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <span></span>
+        <button class="btn-next" onclick="goStep(2, 'forward')">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="step-2">
+      <p class="step-heading">Your venue preferences</p>
+      <p class="step-sub">Step 2 of 4 — Where the magic happens</p>
+      <div class="field-group">
+        <label class="field-label">Venue type</label>
+        <div class="venue-grid" id="venueGrid">
+          <div class="venue-card" onclick="selectVenue(this)"><div class="venue-icon">🏛️</div><div class="venue-name">Banquet Hall</div><div class="venue-desc">Indoor formal hall</div></div>
+          <div class="venue-card" onclick="selectVenue(this)"><div class="venue-icon">⛺</div><div class="venue-name">Marquee / Tent</div><div class="venue-desc">Covered outdoor tent</div></div>
+          <div class="venue-card" onclick="selectVenue(this)"><div class="venue-icon">🌾</div><div class="venue-name">Farmhouse</div><div class="venue-desc">Open rustic grounds</div></div>
+          <div class="venue-card" onclick="selectVenue(this)"><div class="venue-icon">🏨</div><div class="venue-name">Hotel Ballroom</div><div class="venue-desc">Luxury hotel venue</div></div>
+          <div class="venue-card" onclick="selectVenue(this)"><div class="venue-icon">🌳</div><div class="venue-name">Outdoor Garden</div><div class="venue-desc">Open-air greenery</div></div>
+          <div class="venue-card" onclick="selectVenue(this)"><div class="venue-icon">🌆</div><div class="venue-name">Rooftop</div><div class="venue-desc">Elevated city views</div></div>
+          <div class="venue-card" onclick="selectVenue(this)"><div class="venue-icon">🏖️</div><div class="venue-name">Beach / Resort</div><div class="venue-desc">Waterside setting</div></div>
+          <div class="venue-card" onclick="selectVenue(this)"><div class="venue-icon">📍</div><div class="venue-name">Custom / Other</div><div class="venue-desc">Something unique</div></div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Preferred hall / marquee name</label>
+        <input class="ds-input" id="hallPreference" placeholder="e.g. Pearl Continental Ballroom, outdoor garden..." />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Seating style</label>
+        <div class="pills" id="seatPills">
+          <div class="pill selected" onclick="selectPill('seatPills', this)"><span class="seat-icon">🪑</span> Banquet</div>
+          <div class="pill" onclick="selectPill('seatPills', this)"><span class="seat-icon">🎭</span> Theatre</div>
+          <div class="pill" onclick="selectPill('seatPills', this)"><span class="seat-icon">🍸</span> Cocktail</div>
+          <div class="pill" onclick="selectPill('seatPills', this)"><span class="seat-icon">✏️</span> Custom</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Special seating requirements</label>
+        <textarea class="ds-input" id="seatingNotes" rows="3" placeholder="e.g. Reserved front row for family, wheelchair accessible aisle..."></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn-prev" onclick="goStep(1, 'backward')">← Previous</button>
+        <button class="btn-next" onclick="goStep(3, 'forward')">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" id="step-3">
+      <p class="step-heading">Food & extras</p>
+      <p class="step-sub">Step 3 of 4 — Catering and add-on services</p>
+      <div class="field-group">
+        <label class="field-label">Meal preference</label>
+        <div class="meal-cards">
+          <div class="meal-card" onclick="selectMeal(this)"><div class="meal-title">Basic</div><div class="meal-desc">Simple served meal</div><div class="meal-price">From Rs. 800/head</div></div>
+          <div class="meal-card selected" onclick="selectMeal(this)"><div class="meal-title">Standard Buffet</div><div class="meal-desc">Popular variety</div><div class="meal-price">From Rs. 1,500/head</div></div>
+          <div class="meal-card" onclick="selectMeal(this)"><div class="meal-title">Premium Buffet</div><div class="meal-desc">Gourmet selection</div><div class="meal-price">From Rs. 2,500/head</div></div>
+          <div class="meal-card" onclick="selectMeal(this)"><div class="meal-title">Custom Menu</div><div class="meal-desc">Tailored to you</div><div class="meal-price">Price on request</div></div>
+        </div>
+      </div>
+      <div class="field-group" style="margin-top:1rem;">
+        <label class="field-label">Add-on services</label>
+        <div class="addon-grid">
+          <div class="addon-item selected" onclick="toggleAddon(this)"><div class="addon-check"><span class="addon-check-mark">✓</span></div><span class="addon-icon">💡</span><span class="addon-label">Special lighting</span></div>
+          <div class="addon-item" onclick="toggleAddon(this)"><div class="addon-check"></div><span class="addon-icon">🎨</span><span class="addon-label">Custom decorations</span></div>
+          <div class="addon-item" onclick="toggleAddon(this)"><div class="addon-check"></div><span class="addon-icon">🪑</span><span class="addon-label">Extra seating</span></div>
+          <div class="addon-item selected" onclick="toggleAddon(this)"><div class="addon-check"><span class="addon-check-mark">✓</span></div><span class="addon-icon">🎪</span><span class="addon-label">Premium stage design</span></div>
+          <div class="addon-item" onclick="toggleAddon(this)"><div class="addon-check"></div><span class="addon-icon">🌸</span><span class="addon-label">Floral arrangements</span></div>
+          <div class="addon-item selected" onclick="toggleAddon(this)"><div class="addon-check"><span class="addon-check-mark">✓</span></div><span class="addon-icon">📸</span><span class="addon-label">Photography</span></div>
+          <div class="addon-item" onclick="toggleAddon(this)"><div class="addon-check"></div><span class="addon-icon">🎥</span><span class="addon-label">Videography</span></div>
+          <div class="addon-item" onclick="toggleAddon(this)"><div class="addon-check"></div><span class="addon-icon">🔊</span><span class="addon-label">Sound system</span></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-prev" onclick="goStep(2, 'backward')">← Previous</button>
+        <button class="btn-next" onclick="goStep(4, 'forward')">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" id="step-4">
+      <p class="step-heading">Budget & final notes</p>
+      <p class="step-sub">Step 4 of 4 — Last details before we get started</p>
+      <div class="field-group">
+        <label class="field-label">Budget range</label>
+        <div class="pills" id="budgetPills" style="flex-direction: column; gap: 6px;">
+          <div class="pill budget-pill" onclick="selectPill('budgetPills', this)">Under Rs. 50,000</div>
+          <div class="pill budget-pill" onclick="selectPill('budgetPills', this)">Rs. 50,000 – 150,000</div>
+          <div class="pill budget-pill selected" onclick="selectPill('budgetPills', this)">Rs. 150,000 – 300,000</div>
+          <div class="pill budget-pill" onclick="selectPill('budgetPills', this)">Rs. 300,000 – 500,000</div>
+          <div class="pill budget-pill" onclick="selectPill('budgetPills', this)">Above Rs. 500,000</div>
+        </div>
+      </div>
+      <div class="field-group" style="margin-top:1rem;">
+        <label class="field-label">Lighting preference</label>
+        <div class="pills" id="lightPills">
+          <div class="pill" onclick="selectPill('lightPills', this)">Basic</div>
+          <div class="pill selected" onclick="selectPill('lightPills', this)">Fairy Lights</div>
+          <div class="pill" onclick="selectPill('lightPills', this)">LED</div>
+          <div class="pill" onclick="selectPill('lightPills', this)">Chandeliers</div>
+          <div class="pill" onclick="selectPill('lightPills', this)">Custom</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Decoration preference</label>
+        <input class="ds-input" id="decorationPreference" placeholder="e.g. Rustic floral, modern minimalist, royal gold..." />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Special requests</label>
+        <textarea class="ds-input" id="specialRequests" rows="3" placeholder="Anything else your planner should know..."></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn-prev" onclick="goStep(3, 'backward')">← Previous</button>
+        <button class="btn-next" onclick="submitForm()">Submit Requirements →</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="step" id="step-success">
+      <div class="success-screen">
+        <div class="success-icon">✓</div>
+        <p class="success-title" id="successTitle">Thank you!</p>
+        <p class="success-sub">Your requirements have been submitted.<br />Your planner will review everything and get back to you shortly.</p>
+        <div class="success-meta">
+          <p class="success-meta-label">Submitted for</p>
+          <p class="success-meta-value" id="successMeta"></p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+</div><!-- /ds-root -->
+
+<script>
+  const STEP_LABELS = ["About you", "Venue", "Food & extras", "Budget"];
+  let currentStep = 1;
+  let guests = 200;
+  let isDark = true;
+
+  function toggleTheme() {
+    isDark = !isDark;
+    document.documentElement.classList.toggle('light', !isDark);
+    document.getElementById('themeBtn').textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
+  }
+
+  function renderProgress() {
+    const bar = document.getElementById('progressBar');
+    bar.innerHTML = '';
+    STEP_LABELS.forEach((label, i) => {
+      const n = i + 1;
+      const state = currentStep > n ? 'done' : currentStep === n ? 'active' : 'inactive';
+      const stepEl = document.createElement('div');
+      stepEl.style.display = 'flex';
+      stepEl.style.alignItems = 'center';
+      stepEl.innerHTML = `
+        <div class="prog-step">
+          <div class="prog-circle ${state}">${state === 'done' ? '✓' : n}</div>
+          <div class="prog-label ${state === 'active' ? 'active-lbl' : ''}">${label}</div>
+        </div>
+        ${n < 4 ? `<div class="prog-line ${currentStep > n ? 'done-line' : ''}"></div>` : ''}
+      `;
+      bar.appendChild(stepEl);
+    });
+  }
+
+  function goStep(n, dir) {
+    document.getElementById('step-' + currentStep).classList.remove('active');
+    currentStep = n;
+    const card = document.getElementById('stepCard');
+    card.style.setProperty('--slide-from', dir === 'forward' ? '20px' : '-20px');
+    card.classList.remove('step-anim');
+    void card.offsetWidth;
+    card.classList.add('step-anim');
+    document.getElementById('step-' + n).classList.add('active');
+    renderProgress();
+  }
+
+  function submitForm() {
+    const name = document.getElementById('clientName').value || 'there';
+    const eventType = document.querySelector('#eventTypePills .pill.selected')?.textContent || 'Event';
+    const budget = document.querySelector('#budgetPills .pill.selected')?.textContent || 'Budget TBD';
+    document.getElementById('successTitle').textContent = `Thank you, ${name}!`;
+    document.getElementById('successMeta').textContent = `${eventType} · ${guests} guests · ${budget}`;
+    document.getElementById('step-4').classList.remove('active');
+    document.getElementById('progressBar').style.display = 'none';
+    const successStep = document.getElementById('step-success');
+    successStep.classList.add('active');
+    const card = document.getElementById('stepCard');
+    card.style.setProperty('--slide-from', '0px');
+    card.classList.remove('step-anim');
+    void card.offsetWidth;
+    card.classList.add('step-anim');
+  }
+
+  function changeGuests(delta) {
+    guests = Math.max(10, guests + delta);
+    document.getElementById('guestCount').textContent = guests;
+  }
+
+  function selectPill(groupId, el) {
+    document.querySelectorAll('#' + groupId + ' .pill').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectMeal(el) {
+    document.querySelectorAll('.meal-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectVenue(el) {
+    document.querySelectorAll('.venue-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function toggleAddon(el) {
+    el.classList.toggle('selected');
+    const check = el.querySelector('.addon-check');
+    check.innerHTML = el.classList.contains('selected') ? '<span class="addon-check-mark">✓</span>' : '';
+  }
+
+  renderProgress();
+</script>
+</body>
+</html>

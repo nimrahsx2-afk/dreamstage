@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DreamStage — Budget Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3f0ec;
+    --text: #2a2118;
+    --text-muted: #7a6e62;
+    --border: rgba(42,33,24,0.1);
+
+    --rose: #f9c5d1;
+    --rose-d: #f0a0b4;
+    --mint: #b8f0e0;
+    --mint-d: #8ee4cc;
+    --lavender: #d4c5f9;
+    --lavender-d: #b9a3f0;
+    --peach: #ffd6b3;
+    --peach-d: #ffc090;
+    --sky: #b3deff;
+    --sky-d: #8ecbff;
+    --lemon: #fef3a0;
+    --lemon-d: #fde97a;
+
+    --accent: #c9a6e4;
+    --accent-glow: rgba(201,166,228,0.3);
+
+    --shadow: 0 8px 32px rgba(42,33,24,0.08);
+    --shadow-lg: 0 20px 60px rgba(42,33,24,0.12);
+    --shadow-xl: 0 32px 80px rgba(42,33,24,0.16);
+
+    --danger: #f87171;
+    --danger-bg: #fff1f1;
+    --success: #4ade80;
+    --success-bg: #f0fdf4;
+  }
+
+  [data-theme="dark"] {
+    --bg: #16121e;
+    --surface: #211c2e;
+    --surface2: #2a2438;
+    --text: #f0eaff;
+    --text-muted: #9b92b8;
+    --border: rgba(240,234,255,0.1);
+
+    --rose: #7a3a52;
+    --rose-d: #a0506e;
+    --mint: #2a6654;
+    --mint-d: #3a8a72;
+    --lavender: #4a3878;
+    --lavender-d: #6550a0;
+    --peach: #7a4e28;
+    --peach-d: #a06835;
+    --sky: #2a4e7a;
+    --sky-d: #3a6aa0;
+    --lemon: #5a5020;
+    --lemon-d: #7a6e2a;
+
+    --accent: #9b72cc;
+    --accent-glow: rgba(155,114,204,0.25);
+
+    --shadow: 0 8px 32px rgba(0,0,0,0.3);
+    --shadow-lg: 0 20px 60px rgba(0,0,0,0.4);
+    --shadow-xl: 0 32px 80px rgba(0,0,0,0.5);
+
+    --danger: #f87171;
+    --danger-bg: #2a1a1a;
+    --success: #4ade80;
+    --success-bg: #1a2a1a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.4s, color 0.4s;
+  }
+
+  /* ── APP SHELL ── */
+  .app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    grid-template-rows: 64px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 1.5rem; }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .logo span {
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d), var(--sky-d));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .topbar-divider {
+    width: 1px; height: 24px;
+    background: var(--border);
+  }
+
+  .event-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .event-breadcrumb strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .breadcrumb-sep { opacity: 0.4; }
+
+  .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+
+  .theme-toggle {
+    width: 48px; height: 26px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .theme-toggle::after {
+    content: '';
+    position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  [data-theme="dark"] .theme-toggle::after {
+    transform: translateX(22px);
+    background: linear-gradient(135deg, var(--lavender-d), var(--sky-d));
+  }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700;
+    color: white;
+    cursor: pointer;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    overflow-y: auto;
+  }
+
+  .sidebar-section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0.8rem 0.8rem 0.4rem;
+    opacity: 0.7;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active {
+    background: var(--lavender);
+    color: var(--text);
+    font-weight: 600;
+  }
+  [data-theme="dark"] .nav-item.active { background: var(--lavender); }
+  .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--rose);
+    color: #8a2840;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    overflow-y: auto;
+    padding: 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .page-header-left {}
+
+  .page-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+  .page-title em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--rose-d), var(--lavender-d));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+    font-weight: 300;
+  }
+
+  .page-header-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+
+  .btn-secondary {
+    padding: 0.6rem 1.3rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--text); background: var(--surface); transform: translateY(-1px); }
+
+  .btn-primary {
+    padding: 0.6rem 1.3rem;
+    border-radius: 999px;
+    border: none;
+    background: var(--text);
+    color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); opacity: 0.9; }
+
+  /* ── ALERT BANNER ── */
+  .alert-banner {
+    background: linear-gradient(135deg, var(--rose) 0%, var(--peach) 100%);
+    border-radius: 16px;
+    padding: 1rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: fadeUp 0.5s 0.05s ease both;
+    border: 1px solid var(--rose-d);
+  }
+  .alert-icon { font-size: 1.3rem; }
+  .alert-text { flex: 1; }
+  .alert-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.1rem; }
+  .alert-sub { font-size: 0.78rem; color: var(--text-muted); }
+  .alert-action {
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    border: 1.5px solid rgba(42,33,24,0.2);
+    background: rgba(255,255,255,0.5);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .alert-action:hover { background: rgba(255,255,255,0.8); }
+
+  /* ── STAT CARDS ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.2rem;
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.4rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: default;
+  }
+  .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 20px 20px 0 0;
+  }
+  .sc-lavender::before { background: linear-gradient(90deg, var(--lavender), var(--lavender-d)); }
+  .sc-rose::before { background: linear-gradient(90deg, var(--rose), var(--rose-d)); }
+  .sc-mint::before { background: linear-gradient(90deg, var(--mint), var(--mint-d)); }
+  .sc-peach::before { background: linear-gradient(90deg, var(--peach), var(--peach-d)); }
+
+  .stat-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  .si-lavender { background: var(--lavender); }
+  .si-rose { background: var(--rose); }
+  .si-mint { background: var(--mint); }
+  .si-peach { background: var(--peach); }
+
+  .stat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-delta {
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+  }
+  .delta-up { background: var(--mint); color: #1a5e44; }
+  .delta-warn { background: var(--rose); color: #8a2840; }
+  .delta-neutral { background: var(--surface2); color: var(--text-muted); }
+
+  /* ── MAIN GRID ── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 1.5rem;
+    animation: fadeUp 0.5s 0.15s ease both;
+  }
+
+  /* ── SECTION CARD ── */
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 1.4rem 1.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .card-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+  }
+
+  .card-action {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .card-action:hover { color: var(--text); }
+
+  /* ── BUDGET BREAKDOWN ── */
+  .breakdown-body { padding: 1.5rem; }
+
+  .breakdown-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    margin-bottom: 1.4rem;
+    align-items: end;
+  }
+  .breakdown-row:last-child { margin-bottom: 0; }
+
+  .breakdown-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .breakdown-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .breakdown-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .breakdown-amounts {
+    text-align: right;
+  }
+  .breakdown-spent {
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: 'Playfair Display', serif;
+  }
+  .breakdown-budget {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  .progress-track {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--surface2);
+    overflow: hidden;
+    grid-column: 1 / -1;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: growBar 1.2s ease both;
+  }
+
+  @keyframes growBar { from { width: 0 !important; } }
+
+  .bar-lavender { background: linear-gradient(90deg, var(--lavender), var(--lavender-d)); }
+  .bar-rose { background: linear-gradient(90deg, var(--rose), var(--rose-d)); }
+  .bar-mint { background: linear-gradient(90deg, var(--mint), var(--mint-d)); }
+  .bar-peach { background: linear-gradient(90deg, var(--peach), var(--peach-d)); }
+  .bar-sky { background: linear-gradient(90deg, var(--sky), var(--sky-d)); }
+  .bar-lemon { background: linear-gradient(90deg, var(--lemon), var(--lemon-d)); }
+  .bar-danger { background: linear-gradient(90deg, #f87171, #fb923c); }
+
+  /* ── DONUT CHART ── */
+  .donut-section { padding: 1.5rem; }
+
+  .donut-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .donut-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .donut-pct {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .donut-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 0.2rem;
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+  }
+
+  .legend-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-val {
+    font-weight: 600;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.82rem;
+  }
+
+  /* ── LINE ITEMS TABLE ── */
+  .items-table { width: 100%; border-collapse: collapse; }
+
+  .items-table th {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .items-table td {
+    padding: 1rem 1.5rem;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .items-table tr:last-child td { border-bottom: none; }
+  .items-table tbody tr { transition: background 0.15s; }
+  .items-table tbody tr:hover { background: var(--surface2); }
+
+  .item-name-cell { display: flex; align-items: center; gap: 0.7rem; }
+
+  .item-cat-badge {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .item-name { font-weight: 500; }
+  .item-category { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+  .status-pill {
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-block;
+  }
+  .sp-confirmed { background: var(--mint); color: #1a5e44; }
+  .sp-pending { background: var(--lemon); color: #5a4e10; }
+  .sp-over { background: var(--rose); color: #8a2840; }
+
+  .amount-cell {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
+  /* ── BOTTOM GRID ── */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+
+  .timeline-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .timeline-dot-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .timeline-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .timeline-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    min-height: 20px;
+    margin-top: 4px;
+  }
+
+  .timeline-content { flex: 1; padding-bottom: 0.5rem; }
+
+  .timeline-event {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.15rem;
+  }
+
+  .timeline-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  /* ── QUICK ADD ── */
+  .quick-add-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .quick-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .quick-field label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .quick-field input,
+  .quick-field select {
+    padding: 0.65rem 0.9rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  .quick-field input:focus,
+  .quick-field select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    background: var(--surface);
+  }
+
+  .quick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  .btn-add {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 999px;
+    border: none;
+    background: var(--text);
+    color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 0.25rem;
+  }
+  .btn-add:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); opacity: 0.9; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+  @media (max-width: 1100px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .bottom-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 1.25rem; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── TOPBAR ── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="#" class="logo">Dream<span>Stage</span></a>
+      <div class="topbar-divider"></div>
+      <div class="event-breadcrumb">
+        <span>Events</span>
+        <span class="breadcrumb-sep">›</span>
+        <strong>Sarah & Ahmad — Winter Gala</strong>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+      <div class="avatar">SA</div>
+    </div>
+  </header>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Event</div>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">🏛️</span> 3D Editor
+    </a>
+    <a class="nav-item active" href="#">
+      <span class="nav-icon">💰</span> Budget
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">✅</span> Approvals
+      <span class="nav-badge">2</span>
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">📦</span> Inventory
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">📋</span> Checklist
+    </a>
+    <div class="sidebar-section-label">Platform</div>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">📅</span> Bookings
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">🗂️</span> All Events
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon">⚙️</span> Settings
+    </a>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-label">Budget Dashboard</div>
+        <h1 class="page-title">Sarah & Ahmad — <em>Winter Gala</em></h1>
+        <p class="page-meta">23 March 2026 · Grand Ballroom · Last updated 2 minutes ago</p>
+      </div>
+      <div class="page-header-right">
+        <button class="btn-secondary">Export PDF</button>
+        <button class="btn-primary">+ Add Expense</button>
+      </div>
+    </div>
+
+    <!-- Alert banner -->
+    <div class="alert-banner">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-text">
+        <div class="alert-title">Catering is over budget by Rs. 45,000</div>
+        <div class="alert-sub">Review line items or adjust the category ceiling to resolve</div>
+      </div>
+      <button class="alert-action">Review →</button>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card sc-lavender">
+        <div class="stat-icon si-lavender">💰</div>
+        <div class="stat-label">Total Budget</div>
+        <div class="stat-value">Rs. 3.0M</div>
+        <span class="stat-delta delta-neutral">Set ceiling</span>
+      </div>
+      <div class="stat-card sc-rose">
+        <div class="stat-icon si-rose">📊</div>
+        <div class="stat-label">Total Spent</div>
+        <div class="stat-value">Rs. 2.18M</div>
+        <span class="stat-delta delta-up">↑ 72.7% used</span>
+      </div>
+      <div class="stat-card sc-mint">
+        <div class="stat-icon si-mint">✅</div>
+        <div class="stat-label">Remaining</div>
+        <div class="stat-value">Rs. 820K</div>
+        <span class="stat-delta delta-up">↓ Healthy buffer</span>
+      </div>
+      <div class="stat-card sc-peach">
+        <div class="stat-icon si-peach">⚠️</div>
+        <div class="stat-label">Over Budget</div>
+        <div class="stat-value">1 category</div>
+        <span class="stat-delta delta-warn">⚡ Action needed</span>
+      </div>
+    </div>
+
+    <!-- Main dashboard grid -->
+    <div class="dashboard-grid">
+
+      <!-- Budget breakdown -->
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Category Breakdown</div>
+            <div class="card-subtitle">Spend vs. allocated ceiling per category</div>
+          </div>
+          <button class="card-action">Edit ceilings</button>
+        </div>
+        <div class="breakdown-body">
+
+          <div class="breakdown-row">
+            <div>
+              <div class="breakdown-info">
+                <div class="breakdown-name">
+                  <div class="breakdown-dot" style="background:var(--lavender-d)"></div>
+                  🏛️ Venue Rental
+                </div>
+                <div class="breakdown-amounts">
+                  <div class="breakdown-spent">Rs. 420,000</div>
+                  <div class="breakdown-budget">of Rs. 500,000</div>
+                </div>
+              </div>
+              <div class="progress-track"><div class="progress-fill bar-lavender" style="width:84%"></div></div>
+            </div>
+          </div>
+
+          <div class="breakdown-row">
+            <div>
+              <div class="breakdown-info">
+                <div class="breakdown-name">
+                  <div class="breakdown-dot" style="background:var(--rose-d)"></div>
+                  🌸 Florals & Décor
+                </div>
+                <div class="breakdown-amounts">
+                  <div class="breakdown-spent">Rs. 260,000</div>
+                  <div class="breakdown-budget">of Rs. 400,000</div>
+                </div>
+              </div>
+              <div class="progress-track"><div class="progress-fill bar-rose" style="width:65%"></div></div>
+            </div>
+          </div>
+
+          <div class="breakdown-row">
+            <div>
+              <div class="breakdown-info">
+                <div class="breakdown-name">
+                  <div class="breakdown-dot" style="background:#f87171"></div>
+                  🍽️ Catering
+                </div>
+                <div class="breakdown-amounts">
+                  <div class="breakdown-spent" style="color:var(--danger)">Rs. 645,000</div>
+                  <div class="breakdown-budget">of Rs. 600,000</div>
+                </div>
+              </div>
+              <div class="progress-track"><div class="progress-fill bar-danger" style="width:100%"></div></div>
+            </div>
+          </div>
+
+          <div class="breakdown-row">
+            <div>
+              <div class="breakdown-info">
+                <div class="breakdown-name">
+                  <div class="breakdown-dot" style="background:var(--lemon-d)"></div>
+                  💡 AV & Lighting
+                </div>
+                <div class="breakdown-amounts">
+                  <div class="breakdown-spent">Rs. 185,000</div>
+                  <div class="breakdown-budget">of Rs. 300,000</div>
+                </div>
+              </div>
+              <div class="progress-track"><div class="progress-fill bar-lemon" style="width:62%"></div></div>
+            </div>
+          </div>
+
+          <div class="breakdown-row">
+            <div>
+              <div class="breakdown-info">
+                <div class="breakdown-name">
+                  <div class="breakdown-dot" style="background:var(--mint-d)"></div>
+                  👔 Staffing
+                </div>
+                <div class="breakdown-amounts">
+                  <div class="breakdown-spent">Rs. 120,000</div>
+                  <div class="breakdown-budget">of Rs. 250,000</div>
+                </div>
+              </div>
+              <div class="progress-track"><div class="progress-fill bar-mint" style="width:48%"></div></div>
+            </div>
+          </div>
+
+          <div class="breakdown-row">
+            <div>
+              <div class="breakdown-info">
+                <div class="breakdown-name">
+                  <div class="breakdown-dot" style="background:var(--sky-d)"></div>
+                  📸 Photography
+                </div>
+                <div class="breakdown-amounts">
+                  <div class="breakdown-spent">Rs. 150,000</div>
+                  <div class="breakdown-budget">of Rs. 200,000</div>
+                </div>
+              </div>
+              <div class="progress-track"><div class="progress-fill bar-sky" style="width:75%"></div></div>
+            </div>
+          </div>
+
+          <div class="breakdown-row">
+            <div>
+              <div class="breakdown-info">
+                <div class="breakdown-name">
+                  <div class="breakdown-dot" style="background:var(--peach-d)"></div>
+                  🎵 Entertainment
+                </div>
+                <div class="breakdown-amounts">
+                  <div class="breakdown-spent">Rs. 200,000</div>
+                  <div class="breakdown-budget">of Rs. 350,000</div>
+                </div>
+              </div>
+              <div class="progress-track"><div class="progress-fill bar-peach" style="width:57%"></div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div style="display:flex;flex-direction:column;gap:1.2rem;">
+
+        <!-- Donut chart -->
+        <div class="section-card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Spend Distribution</div>
+              <div class="card-subtitle">By category</div>
+            </div>
+          </div>
+          <div class="donut-section">
+            <div class="donut-wrap">
+              <svg class="donut-svg" viewBox="0 0 120 120">
+                <!-- Lavender 24% -->
+                <circle cx="60" cy="60" r="48" fill="none" stroke="var(--lavender-d)" stroke-width="16"
+                  stroke-dasharray="72.4 228.8" stroke-dashoffset="0"/>
+                <!-- Rose 15% -->
+                <circle cx="60" cy="60" r="48" fill="none" stroke="var(--rose-d)" stroke-width="16"
+                  stroke-dasharray="45.2 256" stroke-dashoffset="-72.4"/>
+                <!-- Danger 37% -->
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#f87171" stroke-width="16"
+                  stroke-dasharray="111.5 189.7" stroke-dashoffset="-117.6"/>
+                <!-- Lemon 11% -->
+                <circle cx="60" cy="60" r="48" fill="none" stroke="var(--lemon-d)" stroke-width="16"
+                  stroke-dasharray="33.2 268" stroke-dashoffset="-229.1"/>
+                <!-- Sky 9% -->
+                <circle cx="60" cy="60" r="48" fill="none" stroke="var(--sky-d)" stroke-width="16"
+                  stroke-dasharray="27.1 274.1" stroke-dashoffset="-262.3"/>
+                <!-- Peach 4% -->
+                <circle cx="60" cy="60" r="48" fill="none" stroke="var(--peach-d)" stroke-width="16"
+                  stroke-dasharray="12.1 289.1" stroke-dashoffset="-289.4"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-pct">73%</div>
+                <div class="donut-label">Used</div>
+              </div>
+            </div>
+            <div class="donut-legend">
+              <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:var(--lavender-d)"></div>Venue</div>
+                <div class="legend-val">24%</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:#f87171"></div>Catering</div>
+                <div class="legend-val" style="color:var(--danger)">37% ⚠️</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:var(--rose-d)"></div>Florals</div>
+                <div class="legend-val">15%</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:var(--sky-d)"></div>Photography</div>
+                <div class="legend-val">9%</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:var(--peach-d)"></div>Entertainment</div>
+                <div class="legend-val">11%</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-left"><div class="legend-dot" style="background:var(--lemon-d)"></div>AV & Other</div>
+                <div class="legend-val">4%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Line items table -->
+    <div class="section-card" style="animation: fadeUp 0.5s 0.18s ease both;">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Line Items</div>
+          <div class="card-subtitle">All individual expenses and commitments</div>
+        </div>
+        <button class="card-action">Export CSV</button>
+      </div>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Vendor</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th style="text-align:right">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="item-name-cell">
+                <div class="item-cat-badge" style="background:var(--lavender)">🏛️</div>
+                <div>
+                  <div class="item-name">Grand Ballroom Hire</div>
+                  <div class="item-category">Venue Rental</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);font-size:0.82rem">Pearl Continental</td>
+            <td style="color:var(--text-muted);font-size:0.82rem">1 Mar 2026</td>
+            <td><span class="status-pill sp-confirmed">Confirmed</span></td>
+            <td class="amount-cell">Rs. 420,000</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="item-name-cell">
+                <div class="item-cat-badge" style="background:var(--rose)">🌸</div>
+                <div>
+                  <div class="item-name">Floral Centrepieces ×40</div>
+                  <div class="item-category">Florals & Décor</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);font-size:0.82rem">Bloom & Co.</td>
+            <td style="color:var(--text-muted);font-size:0.82rem">15 Mar 2026</td>
+            <td><span class="status-pill sp-confirmed">Confirmed</span></td>
+            <td class="amount-cell">Rs. 160,000</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="item-name-cell">
+                <div class="item-cat-badge" style="background:#fecaca">🍽️</div>
+                <div>
+                  <div class="item-name">Catering — 300 Guests</div>
+                  <div class="item-category">Catering</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);font-size:0.82rem">Royal Kitchens</td>
+            <td style="color:var(--text-muted);font-size:0.82rem">20 Mar 2026</td>
+            <td><span class="status-pill sp-over">Over Budget</span></td>
+            <td class="amount-cell" style="color:var(--danger)">Rs. 645,000</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="item-name-cell">
+                <div class="item-cat-badge" style="background:var(--lemon)">💡</div>
+                <div>
+                  <div class="item-name">Stage Lighting Rig</div>
+                  <div class="item-category">AV & Lighting</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);font-size:0.82rem">LightWorks PK</td>
+            <td style="color:var(--text-muted);font-size:0.82rem">22 Mar 2026</td>
+            <td><span class="status-pill sp-pending">Pending</span></td>
+            <td class="amount-cell">Rs. 95,000</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="item-name-cell">
+                <div class="item-cat-badge" style="background:var(--sky)">📸</div>
+                <div>
+                  <div class="item-name">Photography + Video</div>
+                  <div class="item-category">Photography</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);font-size:0.82rem">Studio Aura</td>
+            <td style="color:var(--text-muted);font-size:0.82rem">23 Mar 2026</td>
+            <td><span class="status-pill sp-confirmed">Confirmed</span></td>
+            <td class="amount-cell">Rs. 150,000</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="item-name-cell">
+                <div class="item-cat-badge" style="background:var(--peach)">🎵</div>
+                <div>
+                  <div class="item-name">Live Band — 4 hrs</div>
+                  <div class="item-category">Entertainment</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);font-size:0.82rem">The Harmony Quartet</td>
+            <td style="color:var(--text-muted);font-size:0.82rem">23 Mar 2026</td>
+            <td><span class="status-pill sp-pending">Pending</span></td>
+            <td class="amount-cell">Rs. 200,000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bottom grid -->
+    <div class="bottom-grid">
+
+      <!-- Activity timeline -->
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Recent Activity</div>
+            <div class="card-subtitle">Budget changes & approvals</div>
+          </div>
+        </div>
+        <div class="timeline-body">
+          <div class="timeline-item">
+            <div class="timeline-dot-col">
+              <div class="timeline-dot" style="background:var(--danger)"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-event">Catering exceeded budget ceiling by Rs. 45,000</div>
+              <div class="timeline-meta">Today at 11:22 AM · Auto-detected</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot-col">
+              <div class="timeline-dot" style="background:var(--mint-d)"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-event">Photography booking confirmed — Rs. 150,000</div>
+              <div class="timeline-meta">Yesterday · Studio Aura</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot-col">
+              <div class="timeline-dot" style="background:var(--lavender-d)"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-event">Venue deposit paid — Rs. 210,000</div>
+              <div class="timeline-meta">12 Feb · Pearl Continental</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot-col">
+              <div class="timeline-dot" style="background:var(--rose-d)"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-event">Florals quote accepted — Rs. 160,000</div>
+              <div class="timeline-meta">9 Feb · Bloom & Co.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot-col">
+              <div class="timeline-dot" style="background:var(--peach-d)"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-event">Budget ceiling set at Rs. 3,000,000</div>
+              <div class="timeline-meta">1 Feb · By Sarah Ahmed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick add expense -->
+      <div class="section-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Quick Add Expense</div>
+            <div class="card-subtitle">Log a new cost instantly</div>
+          </div>
+        </div>
+        <div class="quick-add-body">
+          <div class="quick-field">
+            <label>Description</label>
+            <input type="text" placeholder="e.g. Chair covers × 200">
+          </div>
+          <div class="quick-row">
+            <div class="quick-field">
+              <label>Amount (Rs.)</label>
+              <input type="number" placeholder="0">
+            </div>
+            <div class="quick-field">
+              <label>Category</label>
+              <select>
+                <option>Venue Rental</option>
+                <option>Florals & Décor</option>
+                <option selected>Catering</option>
+                <option>AV & Lighting</option>
+                <option>Staffing</option>
+                <option>Photography</option>
+                <option>Entertainment</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="quick-row">
+            <div class="quick-field">
+              <label>Vendor</label>
+              <input type="text" placeholder="Vendor name">
+            </div>
+            <div class="quick-field">
+              <label>Due Date</label>
+              <input type="date">
+            </div>
+          </div>
+          <div class="quick-field">
+            <label>Status</label>
+            <select>
+              <option>Pending</option>
+              <option>Confirmed</option>
+              <option>Paid</option>
+            </select>
+          </div>
+          <button class="btn-add">Add to Budget →</button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const toggle = document.getElementById('themeToggle');
+  const html = document.documentElement;
+  toggle.addEventListener('click', () => {
+    html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "dreamstage",
+  "version": "1.0.0",
+  "description": "3D Event Planning & Venue Visualization Platform",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "build": "npm run build --workspaces",
+    "build:client": "npm run build --workspace=client",
+    "build:server": "npm run build --workspace=server",
+    "lint": "npm run lint --workspaces",
+    "clean": "rimraf client/dist server/dist",
+    "seed-assets": "npm run seed-assets --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

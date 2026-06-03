@@ -1,0 +1,42 @@
+/* DreamStage Logo - Dream (white/text) + Stage (gradient) */
+
+.dreamstage-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.dreamstage-logo .logo-text {
+  color: var(--text);
+}
+
+.dreamstage-logo .logo-gradient {
+  background: linear-gradient(135deg, var(--rose-d), var(--lavender-d), var(--sky-d));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dreamstage-logo .logo-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.35rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Size variants */
+.dreamstage-logo.logo-sm {
+  font-size: 1.25rem;
+}
+
+.dreamstage-logo.logo-sm .logo-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}

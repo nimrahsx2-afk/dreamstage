@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DreamStage Admin Dashboard — UI Reference</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0f0e17;
+      --bg-secondary: #161525;
+      --bg-card: #1a1929;
+      --bg-input: #252438;
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-light: rgba(255, 255, 255, 0.06);
+      --border-medium: rgba(255, 255, 255, 0.08);
+      --border-focus: #c9a6e4;
+      --text-primary: #e0ddd5;
+      --text-secondary: #c2bfb8;
+      --text-muted: #8a8893;
+      --text-dim: #6b6a75;
+      --text-faint: #4e4d58;
+      --accent-lavender: #c9a6e4;
+      --accent-rose: #e8a0bf;
+      --accent-sky: #87b5e0;
+      --accent-mint: #5DCAA5;
+      --accent-amber: #EF9F27;
+      --accent-red: #E24B4A;
+      --accent-peach: #F0997B;
+      --gradient-primary: linear-gradient(90deg, #e8a0bf, #c9a6e4, #87b5e0);
+      --font-body: 'DM Sans', sans-serif;
+      --font-heading: 'Playfair Display', serif;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 14px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: #080810;
+      color: var(--text-primary);
+      padding: 24px;
+    }
+
+    /* ========== PAGE LABEL ========== */
+    .page-label {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-lavender);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 60px 0 20px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(201, 166, 228, 0.15);
+    }
+    .page-label:first-child { margin-top: 0; border-top: none; padding-top: 0; }
+
+    /* ========== LAYOUT ========== */
+    .ds-wrap {
+      display: flex;
+      min-height: 700px;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .ds-sidebar {
+      width: 220px;
+      background: var(--bg-secondary);
+      padding: 24px 0;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+    }
+    .ds-logo {
+      padding: 0 24px 28px;
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ds-logo .star { color: var(--accent-lavender); }
+    .ds-logo .dream { color: #fff; }
+    .ds-logo .stage {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .ds-nav { list-style: none; flex: 1; }
+    .ds-nav li {
+      padding: 11px 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s ease;
+      border-right: 2px solid transparent;
+    }
+    .ds-nav li:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .ds-nav li.active {
+      color: var(--accent-lavender);
+      background: rgba(201, 166, 228, 0.08);
+      border-right-color: var(--accent-lavender);
+    }
+    .ds-nav li svg { width: 18px; height: 18px; opacity: 0.5; flex-shrink: 0; }
+    .ds-nav li.active svg { opacity: 1; }
+    .ds-nav .pending-count {
+      background: rgba(239, 159, 39, 0.12);
+      color: var(--accent-amber);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: auto;
+    }
+    .ds-sidebar-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .ds-sidebar-footer .admin-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--bg-primary);
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .ds-main {
+      flex: 1;
+      padding: 28px 32px;
+      min-width: 0;
+      overflow-y: auto;
+    }
+    .ds-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+    .ds-topbar h1 {
+      font-family: var(--font-heading);
+      font-size: 22px;
+      font-weight: 600;
+    }
+    .ds-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ========== STAT CARDS ========== */
+    .ds-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .ds-stat {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      border: 1px solid var(--border-subtle);
+      transition: border-color 0.2s;
+    }
+    .ds-stat:hover { border-color: var(--border-medium); }
+    .ds-stat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .ds-stat-icon svg { width: 18px; height: 18px; }
+    .ds-stat-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .ds-stat-val { font-size: 26px; font-weight: 700; }
+    .ds-stat-sub { font-size: 11px; margin-top: 4px; }
+    .ds-stat-sub.up { color: var(--accent-mint); }
+    .ds-stat-sub.warn { color: var(--accent-amber); }
+
+    /* ========== CHART CARDS ========== */
+    .ds-charts {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .ds-chart-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+    .ds-chart-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+    .ds-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 130px;
+    }
+    .ds-bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .ds-bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.5s ease, opacity 0.2s;
+      opacity: 0.8;
+    }
+    .ds-bar:hover { opacity: 1; }
+    .ds-bar-label { font-size: 10px; color: var(--text-dim); }
+    .ds-donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding-top: 8px;
+    }
+    .ds-legend { display: flex; flex-direction: column; gap: 8px; }
+    .ds-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .ds-legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+    /* ========== ACTIVITY FEED ========== */
+    .ds-activity {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+    .ds-activity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .ds-activity-item:last-child { border-bottom: none; }
+    .ds-activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .ds-activity-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      flex: 1;
+    }
+    .ds-activity-text b { color: var(--text-secondary); font-weight: 500; }
+    .ds-activity-time {
+      font-size: 11px;
+      color: var(--text-faint);
+      flex-shrink: 0;
+    }
+
+    /* ========== FILTERS & SEARCH ========== */
+    .ds-filters { display: flex; gap: 8px; margin-bottom: 18px; }
+    .ds-pill {
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      border: 1px solid var(--border-medium);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font-body);
+    }
+    .ds-pill:hover { border-color: rgba(201, 166, 228, 0.2); color: var(--text-primary); }
+    .ds-pill.active {
+      background: rgba(201, 166, 228, 0.1);
+      color: var(--accent-lavender);
+      border-color: rgba(201, 166, 228, 0.3);
+    }
+    .ds-search-input {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      padding: 9px 16px 9px 36px;
+      color: var(--text-primary);
+      font-size: 13px;
+      width: 240px;
+      font-family: var(--font-body);
+      transition: border-color 0.2s;
+    }
+    .ds-search-input:focus { outline: none; border-color: var(--accent-lavender); }
+    .ds-search-input::placeholder { color: var(--text-faint); }
+    .ds-search-wrap { position: relative; }
+    .ds-search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--text-dim);
+    }
+
+    /* ========== TABLE ========== */
+    .ds-table-wrap {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+    .ds-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ds-table th {
+      text-align: left;
+      padding: 14px 18px;
+      color: var(--text-dim);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .ds-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+    .ds-table tr:last-child td { border-bottom: none; }
+    .ds-table tr:hover td { background: rgba(255, 255, 255, 0.01); }
+
+    /* ========== BADGES ========== */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .badge-pending { background: rgba(239, 159, 39, 0.12); color: var(--accent-amber); }
+    .badge-approved { background: rgba(93, 202, 165, 0.12); color: var(--accent-mint); }
+    .badge-suspended { background: rgba(226, 75, 74, 0.12); color: var(--accent-red); }
+    .badge-3d-yes { background: rgba(93, 202, 165, 0.15); color: var(--accent-mint); }
+    .badge-3d-no { background: rgba(226, 75, 74, 0.1); color: var(--accent-red); }
+
+    /* ========== BUTTONS ========== */
+    .ds-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      font-family: var(--font-body);
+      transition: opacity 0.15s;
+    }
+    .ds-btn:hover { opacity: 0.85; }
+    .ds-btn-approve { background: rgba(93, 202, 165, 0.12); color: var(--accent-mint); }
+    .ds-btn-suspend { background: rgba(226, 75, 74, 0.08); color: var(--accent-red); }
+    .ds-btn-view { background: rgba(201, 166, 228, 0.1); color: var(--accent-lavender); }
+    .ds-btn-actions { display: flex; gap: 6px; }
+    .ds-btn-primary {
+      background: var(--gradient-primary);
+      color: var(--bg-primary);
+      border: none;
+      padding: 10px 28px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .ds-btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-medium);
+      color: var(--text-muted);
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      font-family: var(--font-body);
+    }
+    .ds-btn-add {
+      background: var(--gradient-primary);
+      color: var(--bg-primary);
+      border: none;
+      padding: 9px 20px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+
+    /* ========== VENUE CARDS ========== */
+    .ds-venue-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .ds-venue-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .ds-venue-card:hover { border-color: var(--border-medium); }
+    .ds-venue-img {
+      height: 120px;
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .ds-venue-img svg { opacity: 0.12; }
+    .ds-venue-cat {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      color: var(--text-secondary);
+      font-size: 10px;
+      padding: 3px 10px;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .ds-venue-3d-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 3px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .ds-venue-body { padding: 16px; }
+    .ds-venue-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .ds-venue-cap { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; }
+    .ds-venue-amenities { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+    .ds-venue-amenity {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-dim);
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .ds-venue-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ds-venue-price { font-size: 12px; color: var(--accent-lavender); font-weight: 500; }
+    .ds-venue-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: none;
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+
+    /* ========== FORM ========== */
+    .ds-form-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+      padding: 28px;
+    }
+    .ds-form-section { margin-bottom: 28px; }
+    .ds-form-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-lavender);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(201, 166, 228, 0.08);
+    }
+    .ds-form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .ds-form-full { margin-bottom: 14px; }
+    .ds-label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .ds-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 11px 14px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: var(--font-body);
+      transition: border-color 0.2s;
+    }
+    .ds-input:focus { outline: none; border-color: var(--accent-lavender); }
+    .ds-input::placeholder { color: var(--text-faint); }
+    .ds-textarea { min-height: 90px; resize: vertical; }
+    .ds-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6a75' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .ds-range-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+    .ds-range-sep { color: var(--text-faint); font-size: 13px; padding-bottom: 12px; }
+
+    /* ========== UPLOAD ZONE ========== */
+    .ds-upload-zone {
+      border: 1.5px dashed rgba(201, 166, 228, 0.2);
+      border-radius: 10px;
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .ds-upload-zone:hover {
+      border-color: rgba(201, 166, 228, 0.45);
+      background: rgba(201, 166, 228, 0.02);
+    }
+    .ds-upload-text { font-size: 13px; color: var(--text-dim); }
+    .ds-upload-text b { color: var(--accent-lavender); font-weight: 500; }
+    .ds-upload-hint { font-size: 11px; color: var(--text-faint); margin-top: 6px; }
+    .ds-photo-preview { display: flex; gap: 10px; margin-top: 12px; }
+    .ds-photo-thumb {
+      width: 60px;
+      height: 60px;
+      background: var(--bg-input);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ========== TOGGLE ========== */
+    .ds-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-input);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 14px;
+    }
+    .ds-toggle-label { font-size: 13px; font-weight: 500; }
+    .ds-toggle-hint { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .ds-toggle {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      background: #3a3950;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .ds-toggle.on { background: var(--accent-lavender); }
+    .ds-toggle-knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .ds-toggle.on .ds-toggle-knob { transform: translateX(18px); }
+    .ds-3d-extra {
+      background: rgba(201, 166, 228, 0.04);
+      border: 1px solid rgba(201, 166, 228, 0.08);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    /* ========== AMENITY TAGS ========== */
+    .ds-amenity-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .ds-amenity-tag {
+      background: rgba(201, 166, 228, 0.1);
+      color: var(--accent-lavender);
+      padding: 6px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ds-amenity-x { cursor: pointer; opacity: 0.5; font-size: 14px; }
+    .ds-amenity-x:hover { opacity: 1; }
+
+    /* ========== FORM FOOTER ========== */
+    .ds-form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* ========== BACK LINK ========== */
+    .ds-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: color 0.15s;
+    }
+    .ds-back:hover { color: var(--accent-lavender); }
+
+    /* ========== MINI STATS ========== */
+    .ds-mini-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .ds-mini-stat {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 14px 18px;
+      border: 1px solid var(--border-subtle);
+    }
+    .ds-mini-stat-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .ds-mini-stat-val { font-size: 22px; font-weight: 700; margin-top: 4px; }
+
+    /* ========== ICONS HELPER ========== */
+    .icon { width: 18px; height: 18px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!--  PAGE 1: OVERVIEW / ANALYTICS                                 -->
+<!-- ============================================================ -->
+<div class="page-label">Page 1 — Overview (Admin landing page)</div>
+
+<div class="ds-wrap">
+  <aside class="ds-sidebar">
+    <div class="ds-logo">
+      <span class="star">✦</span>
+      <span><span class="dream">Dream</span><span class="stage">Stage</span></span>
+    </div>
+    <ul class="ds-nav">
+      <li class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Planners
+        <span class="pending-count">3</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Venues
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Events
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-3a2 2 0 0 1-2-2V2"/><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/></svg>
+        Vendors
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Settings
+      </li>
+    </ul>
+    <div class="ds-sidebar-footer">
+      <div class="admin-avatar">A</div>
+      <div>
+        <div style="color: var(--text-primary); font-weight: 500;">Admin</div>
+        <div style="font-size: 11px;">admin@dreamstage.pk</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="ds-main">
+    <div class="ds-topbar">
+      <h1>Overview</h1>
+      <div class="ds-topbar-right">
+        <div class="ds-search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="ds-search-input" placeholder="Search..." />
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-stats">
+      <div class="ds-stat">
+        <div class="ds-stat-icon" style="background: rgba(201,166,228,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#c9a6e4" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="ds-stat-label">Total events</div>
+        <div class="ds-stat-val">156</div>
+        <div class="ds-stat-sub up">+12 this month</div>
+      </div>
+      <div class="ds-stat">
+        <div class="ds-stat-icon" style="background: rgba(93,202,165,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5DCAA5" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div class="ds-stat-label">Active planners</div>
+        <div class="ds-stat-val">24</div>
+        <div class="ds-stat-sub warn">3 pending approval</div>
+      </div>
+      <div class="ds-stat">
+        <div class="ds-stat-icon" style="background: rgba(232,160,191,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#e8a0bf" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="ds-stat-label">Total revenue</div>
+        <div class="ds-stat-val">Rs 4.2M</div>
+        <div class="ds-stat-sub up">+18% vs last month</div>
+      </div>
+      <div class="ds-stat">
+        <div class="ds-stat-icon" style="background: rgba(135,181,224,0.1);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#87b5e0" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <div class="ds-stat-label">Active bookings</div>
+        <div class="ds-stat-val">38</div>
+        <div class="ds-stat-sub up">5 this week</div>
+      </div>
+    </div>
+
+    <div class="ds-charts">
+      <div class="ds-chart-card">
+        <div class="ds-chart-title">Events per month</div>
+        <div class="ds-bars">
+          <div class="ds-bar-col"><div class="ds-bar" style="height:35%;background:var(--accent-lavender)"></div><div class="ds-bar-label">Jan</div></div>
+          <div class="ds-bar-col"><div class="ds-bar" style="height:50%;background:var(--accent-lavender)"></div><div class="ds-bar-label">Feb</div></div>
+          <div class="ds-bar-col"><div class="ds-bar" style="height:65%;background:var(--accent-lavender)"></div><div class="ds-bar-label">Mar</div></div>
+          <div class="ds-bar-col"><div class="ds-bar" style="height:40%;background:var(--accent-lavender)"></div><div class="ds-bar-label">Apr</div></div>
+          <div class="ds-bar-col"><div class="ds-bar" style="height:80%;background:var(--accent-lavender)"></div><div class="ds-bar-label">May</div></div>
+          <div class="ds-bar-col"><div class="ds-bar" style="height:95%;background:var(--accent-lavender)"></div><div class="ds-bar-label">Jun</div></div>
+          <div class="ds-bar-col"><div class="ds-bar" style="height:55%;background:var(--accent-lavender)"></div><div class="ds-bar-label">Jul</div></div>
+          <div class="ds-bar-col"><div class="ds-bar" style="height:72%;background:var(--accent-lavender)"></div><div class="ds-bar-label">Aug</div></div>
+        </div>
+      </div>
+      <div class="ds-chart-card">
+        <div class="ds-chart-title">Top venue categories</div>
+        <div class="ds-donut-wrap">
+          <svg width="90" height="90" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="var(--accent-lavender)" stroke-width="3.5" stroke-dasharray="45 55" stroke-dashoffset="25"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="var(--accent-mint)" stroke-width="3.5" stroke-dasharray="25 75" stroke-dashoffset="80"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="var(--accent-rose)" stroke-width="3.5" stroke-dasharray="18 82" stroke-dashoffset="55"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="var(--accent-sky)" stroke-width="3.5" stroke-dasharray="12 88" stroke-dashoffset="37"/>
+          </svg>
+          <div class="ds-legend">
+            <div class="ds-legend-item"><div class="ds-legend-dot" style="background:var(--accent-lavender)"></div>Banquet 45%</div>
+            <div class="ds-legend-item"><div class="ds-legend-dot" style="background:var(--accent-mint)"></div>Outdoor 25%</div>
+            <div class="ds-legend-item"><div class="ds-legend-dot" style="background:var(--accent-rose)"></div>Conference 18%</div>
+            <div class="ds-legend-item"><div class="ds-legend-dot" style="background:var(--accent-sky)"></div>Other 12%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-activity">
+      <div class="ds-chart-title">Recent activity</div>
+      <div class="ds-activity-item"><div class="ds-activity-dot" style="background:var(--accent-mint)"></div><div class="ds-activity-text">New planner <b>Sara Khan</b> registered — awaiting approval</div><div class="ds-activity-time">2 min ago</div></div>
+      <div class="ds-activity-item"><div class="ds-activity-dot" style="background:var(--accent-lavender)"></div><div class="ds-activity-text"><b>Ali Raza</b> booked Grand Ballroom for Dec 15</div><div class="ds-activity-time">1 hr ago</div></div>
+      <div class="ds-activity-item"><div class="ds-activity-dot" style="background:var(--accent-rose)"></div><div class="ds-activity-text">Event "Nikkah — Ahmed & Fatima" marked complete</div><div class="ds-activity-time">3 hr ago</div></div>
+      <div class="ds-activity-item"><div class="ds-activity-dot" style="background:var(--accent-amber)"></div><div class="ds-activity-text">Vendor <b>Decor by Hina</b> fully paid — Rs 180K</div><div class="ds-activity-time">5 hr ago</div></div>
+      <div class="ds-activity-item"><div class="ds-activity-dot" style="background:var(--accent-sky)"></div><div class="ds-activity-text">New venue <b>Jade Garden</b> added by admin</div><div class="ds-activity-time">Yesterday</div></div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================ -->
+<!--  PAGE 2: PLANNER MANAGEMENT                                   -->
+<!-- ============================================================ -->
+<div class="page-label">Page 2 — Planner management</div>
+
+<div class="ds-wrap">
+  <aside class="ds-sidebar">
+    <div class="ds-logo"><span class="star">✦</span><span><span class="dream">Dream</span><span class="stage">Stage</span></span></div>
+    <ul class="ds-nav">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</li>
+      <li class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Planners<span class="pending-count">3</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Venues</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Events</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/></svg>Vendors</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42"/></svg>Settings</li>
+    </ul>
+  </aside>
+  <main class="ds-main">
+    <div class="ds-topbar"><h1>Planners</h1><div class="ds-search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="ds-search-input" placeholder="Search planners..." /></div></div>
+    <div class="ds-filters">
+      <button class="ds-pill active">All (27)</button>
+      <button class="ds-pill">Pending (3)</button>
+      <button class="ds-pill">Approved (22)</button>
+      <button class="ds-pill">Suspended (2)</button>
+    </div>
+    <div class="ds-table-wrap">
+      <table class="ds-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Registered</th><th>Events</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Sara Khan</td><td>sara@email.com</td><td style="color:var(--text-dim)">Today</td><td>0</td><td><span class="badge badge-pending">Pending</span></td><td><div class="ds-btn-actions"><button class="ds-btn ds-btn-approve">Approve</button><button class="ds-btn ds-btn-suspend">Reject</button></div></td></tr>
+          <tr><td style="font-weight:600">Bilal Ahmed</td><td>bilal@email.com</td><td style="color:var(--text-dim)">Yesterday</td><td>0</td><td><span class="badge badge-pending">Pending</span></td><td><div class="ds-btn-actions"><button class="ds-btn ds-btn-approve">Approve</button><button class="ds-btn ds-btn-suspend">Reject</button></div></td></tr>
+          <tr><td style="font-weight:600">Ayesha Malik</td><td>ayesha@email.com</td><td style="color:var(--text-dim)">2 days ago</td><td>0</td><td><span class="badge badge-pending">Pending</span></td><td><div class="ds-btn-actions"><button class="ds-btn ds-btn-approve">Approve</button><button class="ds-btn ds-btn-suspend">Reject</button></div></td></tr>
+          <tr><td style="font-weight:600">Ali Raza</td><td>ali.raza@email.com</td><td style="color:var(--text-dim)">Jan 15</td><td>8</td><td><span class="badge badge-approved">Approved</span></td><td><div class="ds-btn-actions"><button class="ds-btn ds-btn-view">View events</button><button class="ds-btn ds-btn-suspend">Suspend</button></div></td></tr>
+          <tr><td style="font-weight:600">Fatima Noor</td><td>fatima@email.com</td><td style="color:var(--text-dim)">Dec 03</td><td>12</td><td><span class="badge badge-approved">Approved</span></td><td><div class="ds-btn-actions"><button class="ds-btn ds-btn-view">View events</button><button class="ds-btn ds-btn-suspend">Suspend</button></div></td></tr>
+          <tr><td style="font-weight:600">Hamza Tariq</td><td>hamza@email.com</td><td style="color:var(--text-dim)">Nov 20</td><td>3</td><td><span class="badge badge-suspended">Suspended</span></td><td><div class="ds-btn-actions"><button class="ds-btn ds-btn-approve">Reactivate</button></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================ -->
+<!--  PAGE 3: VENUE MANAGEMENT                                     -->
+<!-- ============================================================ -->
+<div class="page-label">Page 3 — Venue management</div>
+
+<div class="ds-wrap">
+  <aside class="ds-sidebar">
+    <div class="ds-logo"><span class="star">✦</span><span><span class="dream">Dream</span><span class="stage">Stage</span></span></div>
+    <ul class="ds-nav">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Planners</li>
+      <li class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Venues</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Events</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/></svg>Vendors</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42"/></svg>Settings</li>
+    </ul>
+  </aside>
+  <main class="ds-main">
+    <div class="ds-topbar"><h1>Venues</h1><button class="ds-btn-add">+ Add venue</button></div>
+    <div class="ds-mini-stats">
+      <div class="ds-mini-stat"><div class="ds-mini-stat-label">Total venues</div><div class="ds-mini-stat-val">12</div></div>
+      <div class="ds-mini-stat"><div class="ds-mini-stat-label">With 3D model</div><div class="ds-mini-stat-val" style="color:var(--accent-mint)">4</div></div>
+      <div class="ds-mini-stat"><div class="ds-mini-stat-label">Photo only</div><div class="ds-mini-stat-val" style="color:var(--accent-amber)">8</div></div>
+    </div>
+    <div class="ds-venue-grid">
+      <div class="ds-venue-card">
+        <div class="ds-venue-img"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-lavender)" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><div class="ds-venue-cat">Banquet hall</div><div class="ds-venue-3d-badge badge-3d-yes">3D ready</div></div>
+        <div class="ds-venue-body"><div class="ds-venue-name">Grand Ballroom</div><div class="ds-venue-cap">Up to 500 guests</div><div class="ds-venue-amenities"><span class="ds-venue-amenity">Parking</span><span class="ds-venue-amenity">AC</span><span class="ds-venue-amenity">Stage</span><span class="ds-venue-amenity">Catering</span></div><div class="ds-venue-footer"><div class="ds-venue-price">Rs 300K - 800K</div><div style="display:flex;gap:6px"><button class="ds-venue-btn">Edit</button><button class="ds-venue-btn">Deactivate</button></div></div></div>
+      </div>
+      <div class="ds-venue-card">
+        <div class="ds-venue-img"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-lavender)" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><div class="ds-venue-cat">Banquet hall</div><div class="ds-venue-3d-badge badge-3d-no">Photo only</div></div>
+        <div class="ds-venue-body"><div class="ds-venue-name">Pearl Hall</div><div class="ds-venue-cap">Up to 300 guests</div><div class="ds-venue-amenities"><span class="ds-venue-amenity">Parking</span><span class="ds-venue-amenity">AC</span><span class="ds-venue-amenity">WiFi</span></div><div class="ds-venue-footer"><div class="ds-venue-price">Rs 200K - 500K</div><div style="display:flex;gap:6px"><button class="ds-venue-btn">Edit</button><button class="ds-venue-btn">Deactivate</button></div></div></div>
+      </div>
+      <div class="ds-venue-card">
+        <div class="ds-venue-img"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-lavender)" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><div class="ds-venue-cat">Outdoor</div><div class="ds-venue-3d-badge badge-3d-yes">3D ready</div></div>
+        <div class="ds-venue-body"><div class="ds-venue-name">Rose Garden</div><div class="ds-venue-cap">Up to 200 guests</div><div class="ds-venue-amenities"><span class="ds-venue-amenity">Open air</span><span class="ds-venue-amenity">Stage</span><span class="ds-venue-amenity">Lighting</span></div><div class="ds-venue-footer"><div class="ds-venue-price">Rs 150K - 400K</div><div style="display:flex;gap:6px"><button class="ds-venue-btn">Edit</button><button class="ds-venue-btn">Deactivate</button></div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================ -->
+<!--  PAGE 4: ADD VENUE FORM                                       -->
+<!-- ============================================================ -->
+<div class="page-label">Page 4 — Add new venue form</div>
+
+<div class="ds-wrap" style="min-height:900px">
+  <aside class="ds-sidebar">
+    <div class="ds-logo"><span class="star">✦</span><span><span class="dream">Dream</span><span class="stage">Stage</span></span></div>
+    <ul class="ds-nav">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Planners</li>
+      <li class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Venues</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Events</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/></svg>Vendors</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42"/></svg>Settings</li>
+    </ul>
+  </aside>
+  <main class="ds-main">
+    <div class="ds-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to venues
+    </div>
+    <div class="ds-topbar"><h1>Add new venue</h1></div>
+
+    <div class="ds-form-card">
+      <div class="ds-form-section">
+        <div class="ds-form-section-title">Basic information</div>
+        <div class="ds-form-full"><label class="ds-label">Venue name</label><input class="ds-input" placeholder="e.g. Grand Ballroom" /></div>
+        <div class="ds-form-full"><label class="ds-label">Description</label><textarea class="ds-input ds-textarea" placeholder="Describe the venue, its ambiance, and key features..."></textarea></div>
+        <div class="ds-form-row">
+          <div><label class="ds-label">Category</label><select class="ds-input ds-select"><option>Select category</option><option>Banquet Hall</option><option>Outdoor</option><option>Conference</option><option>Intimate</option><option>Heritage</option></select></div>
+          <div><label class="ds-label">Address / location</label><input class="ds-input" placeholder="e.g. DHA Phase 5, Lahore" /></div>
+        </div>
+      </div>
+
+      <div class="ds-form-section">
+        <div class="ds-form-section-title">Capacity & pricing</div>
+        <div class="ds-form-row">
+          <div><label class="ds-label">Minimum guests</label><input class="ds-input" type="number" placeholder="50" /></div>
+          <div><label class="ds-label">Maximum guests</label><input class="ds-input" type="number" placeholder="500" /></div>
+        </div>
+        <div class="ds-range-row">
+          <div><label class="ds-label">Min price (Rs)</label><input class="ds-input" type="number" placeholder="200,000" /></div>
+          <div class="ds-range-sep">to</div>
+          <div><label class="ds-label">Max price (Rs)</label><input class="ds-input" type="number" placeholder="800,000" /></div>
+        </div>
+      </div>
+
+      <div class="ds-form-section">
+        <div class="ds-form-section-title">Photos & media</div>
+        <div class="ds-upload-zone">
+          <div style="margin-bottom:8px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-lavender)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <div class="ds-upload-text">Drag photos here or <b>browse files</b></div>
+          <div class="ds-upload-hint">PNG, JPG up to 5MB each — upload at least 3 photos</div>
+        </div>
+        <div class="ds-photo-preview">
+          <div class="ds-photo-thumb"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <div class="ds-photo-thumb"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+          <div class="ds-photo-thumb"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+        </div>
+        <div style="margin-top:16px"><label class="ds-label">Floor plan image</label>
+          <div class="ds-upload-zone" style="padding:20px"><div class="ds-upload-text">Upload a 2D floor plan — <b>browse</b></div><div class="ds-upload-hint">Used when 3D model is not available</div></div>
+        </div>
+      </div>
+
+      <div class="ds-form-section">
+        <div class="ds-form-section-title">3D model</div>
+        <div class="ds-toggle-row">
+          <div><div class="ds-toggle-label">This venue has a 3D model</div><div class="ds-toggle-hint">Enables the 3D editor for planners booking this venue</div></div>
+          <div class="ds-toggle on"><div class="ds-toggle-knob"></div></div>
+        </div>
+        <div class="ds-3d-extra">
+          <label class="ds-label">GLB model file path</label>
+          <input class="ds-input" placeholder="e.g. grand-ballroom.glb" />
+          <div class="ds-upload-hint" style="margin-top:6px">Place the .glb file in /client/public/models/ and enter the filename</div>
+        </div>
+      </div>
+
+      <div class="ds-form-section">
+        <div class="ds-form-section-title">Amenities</div>
+        <div class="ds-amenity-tags">
+          <div class="ds-amenity-tag">Parking <span class="ds-amenity-x">&times;</span></div>
+          <div class="ds-amenity-tag">AC <span class="ds-amenity-x">&times;</span></div>
+          <div class="ds-amenity-tag">Stage <span class="ds-amenity-x">&times;</span></div>
+          <div class="ds-amenity-tag">Catering <span class="ds-amenity-x">&times;</span></div>
+        </div>
+        <input class="ds-input" placeholder="Type amenity and press Enter..." />
+      </div>
+
+      <div class="ds-form-actions">
+        <button class="ds-btn-secondary">Cancel</button>
+        <button class="ds-btn-primary">Save venue</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
