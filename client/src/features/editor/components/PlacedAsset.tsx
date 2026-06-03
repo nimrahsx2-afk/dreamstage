@@ -192,24 +192,6 @@ export function PlacedAsset({ asset, isSelected, disabled }: PlacedAssetProps) {
   );
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
 
-  // Get world position from mouse coordinates
-  const getFloorPosition = (clientX: number, clientY: number): { x: number; z: number } | null => {
-    const rect = gl.domElement.getBoundingClientRect();
-    const mouse = new THREE.Vector2(
-      ((clientX - rect.left) / rect.width) * 2 - 1,
-      -((clientY - rect.top) / rect.height) * 2 + 1
-    );
-
-    raycaster.setFromCamera(mouse, camera);
-    const intersection = new THREE.Vector3();
-    const hit = raycaster.ray.intersectPlane(floorPlane, intersection);
-
-    if (hit) {
-      return { x: intersection.x, z: intersection.z };
-    }
-    return null;
-  };
-
   // Handle mouse move during drag
   useEffect(() => {
     if (!isDragging || disabled) return;
@@ -226,10 +208,8 @@ export function PlacedAsset({ asset, isSelected, disabled }: PlacedAssetProps) {
       raycaster.setFromCamera(mouse, camera);
 
       // First check if we're hovering over another placed asset
-      const assetMeshes: THREE.Object3D[] = [];
-      const { scene } = camera as any;
       raycaster.camera = camera;
-      
+
       // Get all placed asset objects except current one
       const allObjects: THREE.Object3D[] = [];
       camera.parent?.traverse((obj) => {
@@ -295,22 +275,22 @@ export function PlacedAsset({ asset, isSelected, disabled }: PlacedAssetProps) {
         case 'f': case 'F': {
           // Find nearest asset below current asset
           const currentPos = asset.transform.position;
-          let nearestAsset: PlacedAssetData | null = null;
+          let nearestParentId: string | null = null;
           let nearestDist = Infinity;
 
-          placedAssets.forEach((other) => {
-            if (other.id === asset.id) return;
+          for (const other of placedAssets) {
+            if (other.id === asset.id) continue;
             const odx = other.transform.position.x - currentPos.x;
             const odz = other.transform.position.z - currentPos.z;
             const dist = Math.sqrt(odx * odx + odz * odz);
             if (dist < 2 && dist < nearestDist) {
               nearestDist = dist;
-              nearestAsset = other;
+              nearestParentId = other.id;
             }
-          });
+          }
 
-          if (nearestAsset) {
-            attachAsset(asset.id, nearestAsset.id);
+          if (nearestParentId) {
+            attachAsset(asset.id, nearestParentId);
           }
           return;
         }

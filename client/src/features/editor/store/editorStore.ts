@@ -1,7 +1,6 @@
 // Editor Zustand Store - Scene state, selection, transforms, undo/redo
 
 import { create } from 'zustand';
-import { v4 as uuidv4 } from 'uuid';
 import type {
   EditorState,
   PlacedAssetData,
@@ -169,7 +168,7 @@ export const useEditorStore = create<
 
   // Place a new asset and return its ID
   placeAsset: (assetData) => {
-    const id = uuidv4();
+    const id = crypto.randomUUID();
     const newAsset: PlacedAssetData = { ...assetData, id };
 
     set((state) => {

@@ -1,9 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { Group, Mesh, Object3D } from 'three';
 import { useGLTF } from '@react-three/drei';
-import { getCachedGlbExtensionReport } from '../utils/glbInspect';
-import { applyGltfMaterialFallbacks } from '../utils/gltfMaterialUtils';
-import { KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS } from '../utils/gltfExtensions.constants';
 import { useEditorStore } from '../store/editorStore';
 
 interface VenueModelProps {

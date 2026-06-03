@@ -1,7 +1,7 @@
 // Main R3F Canvas - Camera, lights, orbit controls, and scene container
 
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
-import { Environment, OrbitControls, PerspectiveCamera, PointerLockControls } from '@react-three/drei';
+import { Environment, OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { Suspense, useRef, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
@@ -135,7 +135,7 @@ function HtmlDropReceiver({
 }
 
 function WalkthroughControls() {
-  const { camera, gl } = useThree();
+  const { camera } = useThree();
   const keysRef = useRef<Record<string, boolean>>({});
   const controlsRef = useRef<any>(null);
   const moveDir = useRef(new THREE.Vector3());
