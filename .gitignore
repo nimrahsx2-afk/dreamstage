@@ -29,3 +29,6 @@ coverage/
 
 # Misc
 *.tsbuildinfo
+
+# Local backup of venue GLB (canonical file is Marque_Scene11.glb via Git LFS)
+client/public/models/Marque_Scene11OG.glb

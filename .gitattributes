@@ -1,2 +1,2 @@
-client/public/models/Marque_Scene11OG.glb filter=lfs diff=lfs merge=lfs -text
+client/public/models/Marque_Scene11.glb filter=lfs diff=lfs merge=lfs -text
 client/public/models/Marque_Scene11.glb !text !filter !merge !diff
