@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import * as THREE from 'three';
 import { Group, Mesh, Object3D } from 'three';
 import { useGLTF } from '@react-three/drei';
 import { useEditorStore } from '../store/editorStore';
@@ -18,6 +19,17 @@ export function VenueModel({ filename, onFloorDetected }: VenueModelProps) {
   const scene = useMemo<Object3D>(() => {
     const root = (gltf as any)?.scene as Object3D | undefined;
     const cloned = (root ? root.clone(true) : new Group()) as Object3D;
+    cloned.traverse((obj: Object3D) => {
+      if (obj instanceof THREE.Mesh) {
+        if (Array.isArray(obj.material)) {
+          obj.material.forEach((m: THREE.Material) => {
+            m.side = THREE.DoubleSide;
+          });
+        } else if (obj.material) {
+          (obj.material as THREE.Material).side = THREE.DoubleSide;
+        }
+      }
+    });
     // const extReport = getCachedGlbExtensionReport(url);
     // applyGltfMaterialFallbacks(cloned, {
     //   modelPath: url,
